@@ -1,0 +1,15 @@
+=== Verificación real de database/schema.sql + database/sample_data.sql con sqlite3 (Python stdlib) ===
+biomes: 5 filas
+organisms: 50 filas
+expeditions: 40 filas
+expedition_steps: 120 filas
+cell_models: 3 filas
+cell_structures: 11 filas
+body_systems: 6 filas
+body_organs: 18 filas
+ecosystem_templates: 20 filas
+challenges: 30 filas
+badges: 15 filas
+biologist_profile: 1 filas
+Violaciones de clave foránea: 0
+Resultado: OK, base de datos cargada y consistente.

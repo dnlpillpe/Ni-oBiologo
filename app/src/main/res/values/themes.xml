@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Theme.NinoBiologo: tema base para el splash/arranque antes de que Compose tome el control. -->
+    <style name="Theme.NinoBiologo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/jungle_green_40</item>
+        <item name="android:windowBackground">@color/bg_light</item>
+    </style>
+</resources>

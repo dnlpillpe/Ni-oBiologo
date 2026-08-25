@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Icono de NiñoBiólogo: una lupa de exploración con una hoja y una hélice de ADN estilizada,
+    evitando expresamente un icono médico genérico o un microscopio aislado (identidad visual
+    obligatoria del prompt específico).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/vector"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Mango de la lupa -->
+    <path
+        android:pathData="M68,68 L86,86"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+    <!-- Aro de la lupa -->
+    <path
+        android:pathData="M32,58 m-24,0 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6"
+        android:fillColor="#00000000" />
+    <!-- Hoja dentro de la lupa -->
+    <path
+        android:pathData="M20,66 C24,50 40,46 44,50 C48,58 40,70 26,70 C22,70 20,68 20,66 Z"
+        android:fillColor="#B7DDB5" />
+    <path
+        android:pathData="M22,66 L40,52"
+        android:strokeColor="#2E7D32"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+    <!-- Hélice de ADN estilizada -->
+    <path
+        android:pathData="M64,18 C72,26 56,34 64,42 C72,50 56,58 64,66"
+        android:strokeColor="#FFD8A8"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M78,18 C70,26 86,34 78,42 C70,50 86,58 78,66"
+        android:strokeColor="#FFD8A8"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path android:pathData="M65,22 L77,22" android:strokeColor="#FFD8A8" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <path android:pathData="M65,38 L77,38" android:strokeColor="#FFD8A8" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <path android:pathData="M65,54 L77,54" android:strokeColor="#FFD8A8" android:strokeWidth="2.5" android:strokeLineCap="round" />
+</vector>

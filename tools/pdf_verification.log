@@ -1,0 +1,36 @@
+=== Verificación real de los PDF finales (docs/pdf/) — 2026-08-24 19:52 UTC ===
+Pipeline: Markdown -> pandoc (.docx) -> python-docx (añade numeración de página real PAGE/NUMPAGES
+en el pie) -> LibreOffice --headless --convert-to pdf (writer_pdf_Export)
+
+MEMORIA_DESCRIPTIVA.pdf
+  Cabecera: %PDF-1.7 (real, verificado con head -c 8)
+  Tamaño: 112896 bytes
+  Páginas: 6
+  Ocurrencias de "Página" (numeración) en el texto extraído: 6 (una por página)
+  Caracteres españoles (ñ, á, é, í, ó, ú) presentes y renderizados correctamente en pdftotext
+  Tabla de contenidos: sí (generada por pandoc --toc)
+  Tablas: sí (ej. tabla de "1. Identificación")
+  SHA-256: f91e68da4baa530d533d2b345a13650a0e1b1a6b9c6eccb9f08765514ff3c754
+
+MANUAL_USUARIO.pdf
+  Cabecera: %PDF-1.7
+  Tamaño: 92885 bytes
+  Páginas: 5
+  Ocurrencias de "Página": 5
+  Caracteres españoles: correctos
+  Tabla de contenidos: sí
+  Tablas: sí (ej. "6. Permisos")
+  SHA-256: 8652c2402f1bf10686d78469b389bb4d8ccd836451099cb418ff58b7c7d72cff
+
+MANUAL_TECNICO.pdf
+  Cabecera: %PDF-1.7
+  Tamaño: 156424 bytes
+  Páginas: 6
+  Ocurrencias de "Página": 6
+  Caracteres españoles: correctos
+  Tabla de contenidos: sí
+  Tablas: sí (ej. "1. Stack y versiones exactas")
+  SHA-256: 88b4ed70bb481f67b5cf98d75302a15daa499f2b2170989f44fcb2bcccc8f590
+
+Resultado: OK, los 3 PDF son archivos PDF reales, no vacíos, con numeración de página real,
+caracteres españoles correctos, tablas y títulos.

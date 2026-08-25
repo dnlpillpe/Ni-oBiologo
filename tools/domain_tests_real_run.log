@@ -1,0 +1,13 @@
+=== Ejecución real de tests de dominio JVM — 2026-08-24 19:41 UTC ===
+Compilador: kotlin-compiler-embeddable 2.0.21 (embebido en Gradle 8.14.3 local, sin red)
+Runner: JUnit 4.13.2 (local, sin red)
+Alcance: domain/model + domain/logic (Kotlin puro) + app/src/test/.../domain (JUnit puro).
+Los tests de Room (app/src/test/.../data/AppDatabaseTest.kt) requieren androidx/Robolectric
+y se documentan por separado como no ejecutables en este entorno sin SDK/red.
+
+JUnit version 4.13.2
+...........................................................
+Time: 0.079
+
+OK (59 tests)
+

@@ -1,0 +1,15 @@
+Organismos: 50
+Expediciones: 40, pasos: 120
+Ecosistemas: 20
+Desafíos: 30
+Insignias: 15
+Modelos de célula: 3, estructuras: 11
+Sistemas del cuerpo: 6, órganos: 18
+
+Escrito app/src/main/java/com/educalab/ninobiologo/data/local/seed/SeedContent.kt (376 líneas)
+
+=== VALIDACIÓN DE INTEGRIDAD DE DATOS SEMILLA ===
+  Todas las verificaciones de integridad pasaron correctamente.
+  Organismos: 50 | Expediciones: 40 (pasos: 120)
+  Ecosistemas: 20 | Desafíos: 30 | Insignias: 15
+  Modelos de célula: 3 | Sistemas del cuerpo: 6 | Avatares: 8

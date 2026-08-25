@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copia de seguridad local del progreso (Room + fotos/audios del diario). Sin backend: todo
+     el respaldo, si el usuario lo activa en su cuenta de Android, permanece bajo su control. -->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="file" path="." />
+</full-backup-content>
