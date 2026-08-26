@@ -188,7 +188,7 @@ class BiologyRepository(private val db: AppDatabase) {
 
     suspend fun recordChallengeAttempt(challenge: Challenge, correctCount: Int, totalCount: Int, nowEpochMillis: Long): Pair<ChallengeAttempt, List<Badge>> {
         val scoreResult = ChallengeScoringEngine.score(correctCount, totalCount, challenge.rewardXp)
-        var attempt: ChallengeAttempt
+        var attempt: ChallengeAttempt? = null
         var newlyUnlocked: List<Badge> = emptyList()
         db.withTransaction {
             val id = db.challengeAttemptDao().insert(
@@ -205,14 +205,14 @@ class BiologyRepository(private val db: AppDatabase) {
             attempt = ChallengeAttempt(id, challenge.id, correctCount, totalCount, scoreResult.stars, scoreResult.xpAwarded, nowEpochMillis)
             newlyUnlocked = evaluateAndPersistNewBadges()
         }
-        return attempt to newlyUnlocked
+        return attempt!! to newlyUnlocked
     }
 
     // ---------- Constructor de Ecosistemas ----------
 
     suspend fun saveEcosystemBuild(templateId: String, producers: Int, herbivores: Int, carnivores: Int, decomposers: Int, nowEpochMillis: Long): Pair<EcosystemBuild, List<Badge>> {
         val result = EcosystemBalanceEngine.evaluate(producers, herbivores, carnivores, decomposers)
-        var build: EcosystemBuild
+        var build: EcosystemBuild? = null 
         var newlyUnlocked: List<Badge> = emptyList()
         db.withTransaction {
             val id = db.ecosystemBuildDao().insert(
@@ -228,7 +228,7 @@ class BiologyRepository(private val db: AppDatabase) {
             build = EcosystemBuild(id, templateId, producers, herbivores, carnivores, decomposers, result.score, result.status, nowEpochMillis)
             newlyUnlocked = evaluateAndPersistNewBadges()
         }
-        return build to newlyUnlocked
+        return build!! to newlyUnlocked
     }
 
     // ---------- Insignias ----------

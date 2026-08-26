@@ -14,7 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.items  
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
@@ -115,16 +116,24 @@ private suspend fun androidx.compose.ui.input.pointer.PointerInputScope.detectTa
     model: com.educalab.ninobiologo.domain.model.CellModel,
     onTap: (String) -> Unit
 ) {
-    androidx.compose.foundation.gestures.detectTapGestures { offset ->
-        val w = size.width.toFloat()
-        val h = size.height.toFloat()
+    detectTapGestures { offset ->
+
+        val w = size.width
+        val h = size.height
+
         val touchRadius = w * 0.09f
+
         val tapped = model.structures.minByOrNull { structure ->
-            hypot((structure.xPercent * w - offset.x).toDouble(), (structure.yPercent * h - offset.y).toDouble())
+            hypot(
+                (structure.xPercent * w - offset.x).toDouble(),
+                (structure.yPercent * h - offset.y).toDouble()
+            )
         }
+
         if (tapped != null) {
             val dx = tapped.xPercent * w - offset.x
             val dy = tapped.yPercent * h - offset.y
+
             if (hypot(dx.toDouble(), dy.toDouble()) <= touchRadius) {
                 onTap(tapped.id)
             }
