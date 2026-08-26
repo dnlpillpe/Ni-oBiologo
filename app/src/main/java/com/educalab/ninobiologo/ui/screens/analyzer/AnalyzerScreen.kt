@@ -1,8 +1,7 @@
-package com.educalab.ninobiologo.ui.screens.classifier
+package com.educalab.ninobiologo.ui.screens.analyzer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,33 +21,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.educalab.ninobiologo.domain.model.OrganismCategory
+import com.educalab.ninobiologo.domain.model.DiscoveryCategory
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.BiaExpression
 import com.educalab.ninobiologo.ui.components.BiaGuide
-import com.educalab.ninobiologo.ui.components.OrganismIllustration
+import com.educalab.ninobiologo.ui.components.DiscoveryIllustration
 import com.educalab.ninobiologo.ui.components.PrimaryButton
 import com.educalab.ninobiologo.ui.components.SectionHeader
-import com.educalab.ninobiologo.ui.viewmodel.ClassifierViewModel
+import com.educalab.ninobiologo.ui.viewmodel.AnalyzerViewModel
 
-private val CATEGORY_OPTIONS = OrganismCategory.entries
+private val CATEGORY_OPTIONS = DiscoveryCategory.entries
 
+/** El Analizador: herramienta de apoyo para comparar/clasificar los descubrimientos de un ambiente. */
 @Composable
-fun ClassifierScreen(challengeId: String, viewModel: ClassifierViewModel, onFinished: () -> Unit) {
+fun AnalyzerScreen(challengeId: String, viewModel: AnalyzerViewModel, onFinished: () -> Unit) {
     LaunchedEffect(challengeId) { viewModel.load(challengeId) }
     val state by viewModel.uiState.collectAsState()
     var lastFeedback by remember { mutableStateOf<String?>(null) }
 
     Scaffold { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            SectionHeader(state.challenge?.title ?: "Clasificador de Vida", "Arrastra cada organismo a la categoría correcta.")
+            SectionHeader(state.challenge?.title ?: "Analizador", "Identifica la categoría de cada descubrimiento.")
 
             if (state.finished) {
                 val attempt = state.attempt
                 Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     BiaGuide(expression = BiaExpression.CELEBRANDO, sizeDp = 110)
                     Spacer(Modifier.height(12.dp))
-                    Text("¡Desafío completado!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text("¡Análisis completado!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                     Text("★".repeat(attempt?.stars ?: 0) + "☆".repeat(3 - (attempt?.stars ?: 0)), style = MaterialTheme.typography.displayLarge)
                     Spacer(Modifier.height(16.dp))
                     PrimaryButton(text = "Continuar", onClick = onFinished)
@@ -56,17 +56,17 @@ fun ClassifierScreen(challengeId: String, viewModel: ClassifierViewModel, onFini
                 return@Column
             }
 
-            val remaining = state.organisms.filter { organism -> state.attempts.none { it.organismId == organism.id } }
+            val remaining = state.discoveries.filter { discovery -> state.attempts.none { it.discoveryId == discovery.id } }
             val current = remaining.firstOrNull()
 
             if (current == null) {
-                Text("Cargando organismos...", style = MaterialTheme.typography.bodyMedium)
+                Text("Cargando descubrimientos...", style = MaterialTheme.typography.bodyMedium)
             } else {
-                Text("${state.attempts.size + 1} de ${state.organisms.size}", style = MaterialTheme.typography.labelLarge)
+                Text("${state.attempts.size + 1} de ${state.discoveries.size}", style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.height(12.dp))
                 AppCard {
                     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        OrganismIllustration(category = current.category, iconKey = current.iconKey, sizeDp = 96)
+                        DiscoveryIllustration(category = current.category, iconKey = current.iconKey, sizeDp = 96)
                         Spacer(Modifier.height(8.dp))
                         Text(current.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
@@ -93,9 +93,9 @@ fun ClassifierScreen(challengeId: String, viewModel: ClassifierViewModel, onFini
     }
 }
 
-private fun categoryLabel(category: OrganismCategory): String = when (category) {
-    OrganismCategory.PLANTA -> "Planta 🌿"
-    OrganismCategory.ANIMAL -> "Animal 🐾"
-    OrganismCategory.MICROORGANISMO -> "Microorganismo 🔬"
-    OrganismCategory.HONGO -> "Hongo 🍄"
+private fun categoryLabel(category: DiscoveryCategory): String = when (category) {
+    DiscoveryCategory.PLANTA -> "Planta 🌿"
+    DiscoveryCategory.ANIMAL -> "Animal 🐾"
+    DiscoveryCategory.MICROORGANISMO -> "Microorganismo 🔬"
+    DiscoveryCategory.HONGO -> "Hongo 🍄"
 }

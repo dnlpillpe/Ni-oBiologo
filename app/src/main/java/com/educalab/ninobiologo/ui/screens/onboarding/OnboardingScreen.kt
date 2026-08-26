@@ -68,7 +68,7 @@ fun OnboardingScreen(viewModel: OnboardingViewModel, onFinished: () -> Unit) {
                 Spacer(Modifier.width(12.dp))
             }
             PrimaryButton(
-                text = if (step < 2) "Continuar" else "¡Comenzar expedición!",
+                text = if (step < 2) "Continuar" else "¡Entrar al laboratorio!",
                 enabled = step != 1 || Validators.isAliasValid(alias.ifBlank { "x" }),
                 onClick = {
                     if (step < 2) {

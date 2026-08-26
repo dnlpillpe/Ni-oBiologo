@@ -2,21 +2,18 @@ package com.educalab.ninobiologo.ui.screens.microscope
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items  
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -26,15 +23,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.educalab.ninobiologo.domain.logic.MicroscopeEngine
+import com.educalab.ninobiologo.ui.components.AmbientParticles
 import com.educalab.ninobiologo.ui.components.SectionHeader
 import com.educalab.ninobiologo.ui.components.SimpleTopBar
 import com.educalab.ninobiologo.ui.components.XpBar
@@ -42,8 +42,9 @@ import com.educalab.ninobiologo.ui.viewmodel.MicroscopeViewModel
 import kotlin.math.hypot
 
 /**
- * Microscopio virtual (ZONA 1): el niño toca los puntos brillantes sobre la célula para revelar
- * estructuras reales, en vez de simplemente leer un texto (mecánica "observar/experimentar").
+ * Microscopio virtual: el niño acerca y mueve la muestra de verdad (pellizcar para hacer zoom,
+ * arrastrar para moverse) y toca los puntos brillantes para revelar estructuras reales, en vez de
+ * simplemente leer un texto.
  */
 @Composable
 fun MicroscopeScreen(viewModel: MicroscopeViewModel, onBack: () -> Unit) {
@@ -52,14 +53,20 @@ fun MicroscopeScreen(viewModel: MicroscopeViewModel, onBack: () -> Unit) {
     val model = state.cellModels.getOrNull(state.selectedIndex)
     val exploration = state.explorationState
 
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
     Scaffold(topBar = { SimpleTopBar(title = "Microscopio Virtual", onBack = onBack) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            SectionHeader("Microscopio Virtual", "Toca los puntos brillantes para descubrir cada estructura.")
+            SectionHeader("Microscopio Virtual", "Pellizca para acercar y toca los puntos brillantes para descubrir cada estructura.")
             LazyRow {
                 items(state.cellModels) { cell ->
                     FilterChip(
                         selected = cell.id == model?.id,
-                        onClick = { viewModel.selectCell(state.cellModels.indexOf(cell)) },
+                        onClick = {
+                            viewModel.selectCell(state.cellModels.indexOf(cell))
+                            scale = 1f; offset = Offset.Zero
+                        },
                         label = { Text(cell.name) },
                         modifier = Modifier.padding(end = 8.dp)
                     )
@@ -78,22 +85,35 @@ fun MicroscopeScreen(viewModel: MicroscopeViewModel, onBack: () -> Unit) {
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(28.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer)
-                        .pointerInput(model.id) {
-                            detectTapOnStructures(model, onTap = { viewModel.revealStructure(it) })
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 4f)
+                                offset += pan
+                            }
                         }
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        val w = size.width
-                        val h = size.height
-                        drawCircle(Color.White.copy(alpha = 0.5f), radius = w * 0.42f, center = Offset(w / 2f, h / 2f))
-                        model.structures.forEach { structure ->
-                            val revealed = structure.id in exploration.revealedStructureIds
-                            drawCircle(
-                                color = if (revealed) Color(0xFF2E7D32) else Color(0xFFEF6C00),
-                                radius = if (revealed) w * 0.05f else w * 0.045f,
-                                center = Offset(structure.xPercent * w, structure.yPercent * h)
-                            )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offset.x, translationY = offset.y)
+                            .pointerInput(model.id) {
+                                detectTapOnStructures(model, onTap = { viewModel.revealStructure(it) })
+                            }
+                    ) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val w = size.width
+                            val h = size.height
+                            drawCircle(Color.White.copy(alpha = 0.5f), radius = w * 0.42f, center = Offset(w / 2f, h / 2f))
+                            model.structures.forEach { structure ->
+                                val revealed = structure.id in exploration.revealedStructureIds
+                                drawCircle(
+                                    color = if (revealed) Color(0xFF2E7D32) else Color(0xFFEF6C00),
+                                    radius = if (revealed) w * 0.05f else w * 0.045f,
+                                    center = Offset(structure.xPercent * w, structure.yPercent * h)
+                                )
+                            }
                         }
+                        AmbientParticles(modifier = Modifier.fillMaxSize(), color = Color(0xFF2E7D32), count = 8)
                     }
                 }
                 Spacer(Modifier.height(16.dp))

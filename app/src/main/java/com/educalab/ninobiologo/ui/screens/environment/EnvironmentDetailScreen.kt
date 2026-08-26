@@ -1,4 +1,4 @@
-package com.educalab.ninobiologo.ui.screens.zone
+package com.educalab.ninobiologo.ui.screens.environment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,72 +34,69 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.educalab.ninobiologo.domain.model.ModuleState
+import com.educalab.ninobiologo.domain.model.SampleExplorationState
 import com.educalab.ninobiologo.ui.components.AppCard
-import com.educalab.ninobiologo.ui.components.OrganismIllustration
+import com.educalab.ninobiologo.ui.components.DiscoveryIllustration
 import com.educalab.ninobiologo.ui.components.SectionHeader
-import com.educalab.ninobiologo.ui.viewmodel.ExpeditionCardUiState
-import com.educalab.ninobiologo.ui.viewmodel.ZoneViewModel
+import com.educalab.ninobiologo.ui.viewmodel.EnvironmentViewModel
+import com.educalab.ninobiologo.ui.viewmodel.SampleCardUiState
 
 @Composable
-fun ZoneDetailScreen(
-    biomeId: String,
-    viewModel: ZoneViewModel,
+fun EnvironmentDetailScreen(
+    environmentId: String,
+    viewModel: EnvironmentViewModel,
     onBack: () -> Unit,
-    onExpeditionClick: (String) -> Unit,
-    onEcosystemClick: (String) -> Unit,
-    onChallengeClick: (String) -> Unit,
-    onMicroscopeClick: () -> Unit
+    onSampleClick: (String) -> Unit,
+    onExperimentClick: (String) -> Unit,
+    onAnalyzerClick: (String) -> Unit,
+    onCreatureBuilderClick: (String) -> Unit
 ) {
-    LaunchedEffect(biomeId) { viewModel.load(biomeId) }
+    LaunchedEffect(environmentId) { viewModel.load(environmentId) }
     val state by viewModel.uiState.collectAsState()
-    val biome = state.biome
+    val environment = state.environment
 
     Scaffold(
         topBar = {
             Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Volver") }
                 Column {
-                    Text(biome?.name ?: "", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Text(biome?.tagline ?: "", style = MaterialTheme.typography.bodyMedium)
+                    Text(environment?.name ?: "", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(environment?.tagline ?: "", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
     ) { padding ->
-        if (biome == null) {
+        if (environment == null) {
             Column(Modifier.fillMaxSize().padding(padding)) { }
             return@Scaffold
         }
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp)) {
-            if (biomeId == "micromundo") {
-                item {
-                    AppCard(onClick = onMicroscopeClick) {
-                        Text("Microscopio Virtual", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Explora células y descubre sus estructuras en detalle.", style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Spacer(Modifier.height(12.dp))
-                }
-            }
             item {
-                SectionHeader("Expediciones", "${state.expeditionCards.count { it.state == ModuleState.COMPLETADO || it.state == ModuleState.DOMINADO }}/${state.expeditionCards.size} completadas")
+                SectionHeader(
+                    "Muestras por explorar",
+                    "${state.sampleCards.count { it.state == SampleExplorationState.DESCUBIERTO }}/${state.sampleCards.size} completadas"
+                )
             }
-            items(state.expeditionCards) { card ->
-                ExpeditionRow(card = card, onClick = { if (card.state != ModuleState.BLOQUEADO) onExpeditionClick(card.expedition.id) })
+            items(state.sampleCards) { card ->
+                SampleRow(card = card, onClick = { if (!card.locked) onSampleClick(card.sample.id) })
                 Spacer(Modifier.height(10.dp))
             }
 
-            item { Spacer(Modifier.height(12.dp)); SectionHeader("Organismos de la zona", "${state.discoveredIds.count { id -> state.organisms.any { it.id == id } }}/${state.organisms.size} descubiertos") }
+            item {
+                Spacer(Modifier.height(12.dp))
+                SectionHeader("Descubrimientos de la zona", "${state.discoveries.count { it.id in state.discoveredIds }}/${state.discoveries.size} descubiertos")
+            }
             item {
                 LazyRow {
-                    items(state.organisms) { organism ->
-                        val discovered = organism.id in state.discoveredIds
+                    items(state.discoveries) { discovery ->
+                        val discovered = discovery.id in state.discoveredIds
                         Column(
                             modifier = Modifier.padding(end = 12.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             if (discovered) {
-                                OrganismIllustration(category = organism.category, iconKey = organism.iconKey, sizeDp = 56)
-                                Text(organism.name, style = MaterialTheme.typography.labelMedium)
+                                DiscoveryIllustration(category = discovery.category, iconKey = discovery.iconKey, sizeDp = 56)
+                                Text(discovery.name, style = MaterialTheme.typography.labelMedium)
                             } else {
                                 Column(
                                     modifier = Modifier.size(56.dp).clip(CircleShape),
@@ -113,21 +112,35 @@ fun ZoneDetailScreen(
                 }
             }
 
-            if (state.ecosystemTemplates.isNotEmpty()) {
-                item { Spacer(Modifier.height(12.dp)); SectionHeader("Constructor de Ecosistemas") }
-                items(state.ecosystemTemplates) { template ->
-                    AppCard(onClick = { onEcosystemClick(template.id) }) {
-                        Text(template.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text(template.description, style = MaterialTheme.typography.bodyMedium)
+            if (state.experiments.isNotEmpty()) {
+                item { Spacer(Modifier.height(12.dp)); SectionHeader("Experimentos biológicos") }
+                items(state.experiments) { experiment ->
+                    AppCard(onClick = { onExperimentClick(experiment.id) }) {
+                        Text(experiment.question, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(experiment.description, style = MaterialTheme.typography.bodyMedium)
                     }
                     Spacer(Modifier.height(10.dp))
                 }
             }
 
+            item {
+                Spacer(Modifier.height(12.dp))
+                AppCard(onClick = { onCreatureBuilderClick(environmentId) }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Science, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text("Constructor Biológico", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            Text("Crea una criatura microscópica adaptada a este ambiente.", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
+
             if (state.challenges.isNotEmpty()) {
-                item { Spacer(Modifier.height(12.dp)); SectionHeader("Desafíos") }
+                item { Spacer(Modifier.height(12.dp)); SectionHeader("Analizador") }
                 items(state.challenges) { challenge ->
-                    AppCard(onClick = { onChallengeClick(challenge.id) }) {
+                    AppCard(onClick = { onAnalyzerClick(challenge.id) }) {
                         Text(challenge.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text(challenge.instructions, style = MaterialTheme.typography.bodyMedium)
                     }
@@ -141,27 +154,24 @@ fun ZoneDetailScreen(
 }
 
 @Composable
-private fun ExpeditionRow(card: ExpeditionCardUiState, onClick: () -> Unit) {
-    val locked = card.state == ModuleState.BLOQUEADO
-    AppCard(onClick = if (locked) null else onClick) {
+private fun SampleRow(card: SampleCardUiState, onClick: () -> Unit) {
+    AppCard(onClick = if (card.locked) null else onClick) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Column(Modifier.weight(1f)) {
-                Text(card.expedition.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(stateLabel(card.state), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Text(card.sample.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(card.sample.origin, style = MaterialTheme.typography.bodyMedium)
+                Text(stateLabel(card.state, card.locked), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             }
-            if (locked) {
+            if (card.locked) {
                 Icon(Icons.Filled.Lock, contentDescription = "Bloqueada", tint = Color.Gray)
-            } else {
-                Text("★".repeat(card.bestStars).ifEmpty { "☆☆☆" }, style = MaterialTheme.typography.titleMedium)
             }
         }
     }
 }
 
-private fun stateLabel(state: ModuleState): String = when (state) {
-    ModuleState.BLOQUEADO -> "Bloqueada"
-    ModuleState.DISPONIBLE -> "Disponible"
-    ModuleState.INICIADO -> "En progreso"
-    ModuleState.COMPLETADO -> "Completada"
-    ModuleState.DOMINADO -> "¡Dominada!"
+private fun stateLabel(state: SampleExplorationState, locked: Boolean): String = when {
+    locked -> "Bloqueada"
+    state == SampleExplorationState.DESCUBIERTO -> "¡Descubierta!"
+    state == SampleExplorationState.NUEVO -> "Lista para explorar"
+    else -> "En progreso"
 }

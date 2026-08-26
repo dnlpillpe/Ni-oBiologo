@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.educalab.ninobiologo.data.repository.BiologyRepository
 import com.educalab.ninobiologo.domain.logic.RankEngine
 import com.educalab.ninobiologo.domain.logic.Validators
-import com.educalab.ninobiologo.domain.model.Badge
 import com.educalab.ninobiologo.domain.model.BiologistRank
+import com.educalab.ninobiologo.domain.model.LabCollectible
+import com.educalab.ninobiologo.domain.model.LaboratoryUpgrade
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +24,10 @@ data class ProfileUiState(
     val soundEnabled: Boolean = true,
     val hapticsEnabled: Boolean = true,
     val discoveriesCount: Int = 0,
-    val badgesUnlocked: List<Badge> = emptyList(),
-    val allBadges: List<Badge> = emptyList()
+    val unlockedUpgrades: List<LaboratoryUpgrade> = emptyList(),
+    val allUpgrades: List<LaboratoryUpgrade> = emptyList(),
+    val unlockedCollectibles: List<LabCollectible> = emptyList(),
+    val allCollectibles: List<LabCollectible> = emptyList()
 )
 
 class ProfileViewModel(private val repository: BiologyRepository) : ViewModel() {
@@ -34,13 +37,18 @@ class ProfileViewModel(private val repository: BiologyRepository) : ViewModel() 
 
     init {
         viewModelScope.launch {
+            val collectiblesFlow = combine(repository.observeLabCollectibles(), repository.observeCollectibleUnlocks()) { collectibles, unlockedIds ->
+                collectibles to unlockedIds.toSet()
+            }
             combine(
                 repository.observeProfile(),
-                repository.observeDiscoveries(),
-                repository.observeBadges(),
-                repository.observeBadgeUnlocks()
-            ) { profile, discoveries, allBadges, unlockedIds ->
+                repository.observeDiscoveriesFound(),
+                repository.observeLaboratoryUpgrades(),
+                repository.observeLabUpgradeUnlocks(),
+                collectiblesFlow
+            ) { profile, discoveries, allUpgrades, unlockedUpgradeIds, (collectibles, unlockedCollectibleIds) ->
                 val xp = profile?.totalXp ?: 0
+                val unlockedUpgradeSet = unlockedUpgradeIds.toSet()
                 ProfileUiState(
                     alias = profile?.alias ?: "Explorador",
                     avatarKey = profile?.avatarKey ?: "avatar_explorador_1",
@@ -51,8 +59,10 @@ class ProfileViewModel(private val repository: BiologyRepository) : ViewModel() 
                     soundEnabled = profile?.soundEnabled ?: true,
                     hapticsEnabled = profile?.hapticsEnabled ?: true,
                     discoveriesCount = discoveries.size,
-                    badgesUnlocked = allBadges.filter { it.id in unlockedIds.toSet() },
-                    allBadges = allBadges
+                    unlockedUpgrades = allUpgrades.filter { it.id in unlockedUpgradeSet },
+                    allUpgrades = allUpgrades,
+                    unlockedCollectibles = collectibles.filter { it.id in unlockedCollectibleIds },
+                    allCollectibles = collectibles
                 )
             }.collect { _uiState.value = it }
         }

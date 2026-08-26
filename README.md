@@ -1,9 +1,12 @@
-# NiñoBiólogo: Exploradores de la Vida
+# NiñoBiólogo: Vida en Miniatura
 
-Aplicación educativa Android para niños de 8 a 12 años sobre biología, biodiversidad y
-exploración científica. El niño se convierte en un joven biólogo que explora cinco zonas
-(Micromundo, Bosque de Vida, Océano Profundo, Cuerpo Humano y Ecosistemas), descubre organismos
-reales, construye ecosistemas y arma su propio Museo Biológico Personal — todo 100% offline.
+Videojuego educativo Android para niños de 8 a 12 años sobre biología y exploración científica.
+El niño es un joven biólogo con su propio "Laboratorio Vivo": recoge muestras en cinco ambientes
+microscópicos (Micromundo, Bosque de Vida, Océano Profundo, Cuerpo Humano y Ecosistemas) y las
+lleva por el ciclo **Explorar → Observar → Experimentar → Descubrir → Coleccionar**, en vez de un
+esquema de misión/pregunta/respuesta. Usa un microscopio con zoom real, recorre el interior de una
+célula, ajusta variables en experimentos biológicos reales, crea criaturas microscópicas en el
+Constructor Biológico y arma su propio "Museo de la Vida" — todo 100% offline.
 
 - **Package**: `com.educalab.ninobiologo`
 - **Versión**: 1.0.0
@@ -53,7 +56,8 @@ O simplemente haz `git push` a un repositorio de GitHub: el workflow en
 
 ## Regenerar el contenido semilla
 
-Todo el contenido (40 expediciones, 50 organismos, 20 ecosistemas, 30 desafíos, 15 insignias) se
+Todo el contenido (5 ambientes, 20 muestras, 30 descubrimientos, 10 experimentos, 16 piezas del
+Constructor Biológico, 30 tareas del Analizador, 15 coleccionables, 8 mejoras de laboratorio) se
 genera desde una única fuente en Python, revisable y mantenible:
 
 ```bash

@@ -15,28 +15,33 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.educalab.ninobiologo.AppContainer
-import com.educalab.ninobiologo.domain.model.Organism
-import com.educalab.ninobiologo.ui.screens.classifier.ClassifierScreen
-import com.educalab.ninobiologo.ui.screens.ecosystem.EcosystemBuilderScreen
-import com.educalab.ninobiologo.ui.screens.expedition.ExpeditionScreen
-import com.educalab.ninobiologo.ui.screens.home.ExpeditionMapScreen
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
+import com.educalab.ninobiologo.ui.screens.analyzer.AnalyzerScreen
+import com.educalab.ninobiologo.ui.screens.celljourney.CellJourneyScreen
+import com.educalab.ninobiologo.ui.screens.creature.CreatureBuilderScreen
+import com.educalab.ninobiologo.ui.screens.environment.EnvironmentDetailScreen
+import com.educalab.ninobiologo.ui.screens.experiment.ExperimentScreen
+import com.educalab.ninobiologo.ui.screens.home.LaboratoryScreen
 import com.educalab.ninobiologo.ui.screens.journal.JournalScreen
 import com.educalab.ninobiologo.ui.screens.microscope.MicroscopeScreen
+import com.educalab.ninobiologo.ui.screens.museum.DiscoveryDetailScreen
 import com.educalab.ninobiologo.ui.screens.museum.MuseumScreen
-import com.educalab.ninobiologo.ui.screens.museum.OrganismDetailScreen
 import com.educalab.ninobiologo.ui.screens.onboarding.OnboardingScreen
 import com.educalab.ninobiologo.ui.screens.profile.ProfileScreen
-import com.educalab.ninobiologo.ui.screens.zone.ZoneDetailScreen
-import com.educalab.ninobiologo.ui.viewmodel.ClassifierViewModel
-import com.educalab.ninobiologo.ui.viewmodel.EcosystemBuilderViewModel
-import com.educalab.ninobiologo.ui.viewmodel.ExpeditionMapViewModel
-import com.educalab.ninobiologo.ui.viewmodel.ExpeditionViewModel
+import com.educalab.ninobiologo.ui.screens.sample.SampleExplorationScreen
+import com.educalab.ninobiologo.ui.viewmodel.AnalyzerViewModel
+import com.educalab.ninobiologo.ui.viewmodel.CellJourneyViewModel
+import com.educalab.ninobiologo.ui.viewmodel.CreatureBuilderViewModel
+import com.educalab.ninobiologo.ui.viewmodel.EnvironmentViewModel
+import com.educalab.ninobiologo.ui.viewmodel.ExperimentViewModel
+import com.educalab.ninobiologo.ui.viewmodel.JournalViewModel
+import com.educalab.ninobiologo.ui.viewmodel.LaboratoryViewModel
 import com.educalab.ninobiologo.ui.viewmodel.MicroscopeViewModel
 import com.educalab.ninobiologo.ui.viewmodel.MuseumViewModel
 import com.educalab.ninobiologo.ui.viewmodel.NinoBiologoViewModelFactory
 import com.educalab.ninobiologo.ui.viewmodel.OnboardingViewModel
 import com.educalab.ninobiologo.ui.viewmodel.ProfileViewModel
-import com.educalab.ninobiologo.ui.viewmodel.ZoneViewModel
+import com.educalab.ninobiologo.ui.viewmodel.SampleExplorationViewModel
 
 @Composable
 fun NinoBiologoNavGraph(container: AppContainer) {
@@ -45,12 +50,12 @@ fun NinoBiologoNavGraph(container: AppContainer) {
 
     val profileState by container.repository.observeProfile().collectAsState(initial = null)
     var startDestinationResolved by remember { mutableStateOf(false) }
-    var startDestination by remember { mutableStateOf(Destinations.EXPEDITION_MAP) }
+    var startDestination by remember { mutableStateOf(Destinations.LABORATORY) }
 
     LaunchedEffect(profileState) {
         val profile = profileState
         if (profile != null) {
-            startDestination = if (profile.onboardingCompleted) Destinations.EXPEDITION_MAP else Destinations.ONBOARDING
+            startDestination = if (profile.onboardingCompleted) Destinations.LABORATORY else Destinations.ONBOARDING
             startDestinationResolved = true
         }
     }
@@ -61,82 +66,91 @@ fun NinoBiologoNavGraph(container: AppContainer) {
         composable(Destinations.ONBOARDING) {
             val vm: OnboardingViewModel = viewModel(factory = factory)
             OnboardingScreen(viewModel = vm, onFinished = {
-                navController.navigate(Destinations.EXPEDITION_MAP) {
+                navController.navigate(Destinations.LABORATORY) {
                     popUpTo(Destinations.ONBOARDING) { inclusive = true }
                 }
             })
         }
-        composable(Destinations.EXPEDITION_MAP) {
-            val vm: ExpeditionMapViewModel = viewModel(factory = factory)
-            ExpeditionMapScreen(
+        composable(Destinations.LABORATORY) {
+            val vm: LaboratoryViewModel = viewModel(factory = factory)
+            LaboratoryScreen(
                 viewModel = vm,
-                onZoneClick = { biomeId -> navController.navigate(Destinations.zoneRoute(biomeId)) },
-                onProfileClick = { navController.navigate(Destinations.PROFILE) },
+                onEnvironmentClick = { environmentId -> navController.navigate(Destinations.environmentRoute(environmentId)) },
+                onMicroscopeClick = { navController.navigate(Destinations.MICROSCOPE) },
+                onCellJourneyClick = { navController.navigate(Destinations.CELL_JOURNEY) },
+                onMuseumClick = { navController.navigate(Destinations.MUSEUM) },
                 onJournalClick = { navController.navigate(Destinations.JOURNAL) },
-                onMuseumClick = { navController.navigate(Destinations.MUSEUM) }
+                onProfileClick = { navController.navigate(Destinations.PROFILE) }
             )
         }
         composable(
-            Destinations.ZONE,
-            arguments = listOf(navArgument("biomeId") { type = NavType.StringType })
+            Destinations.ENVIRONMENT,
+            arguments = listOf(navArgument("environmentId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val biomeId = backStackEntry.arguments?.getString("biomeId") ?: return@composable
-            val vm: ZoneViewModel = viewModel(factory = factory)
-            ZoneDetailScreen(
-                biomeId = biomeId,
+            val environmentId = backStackEntry.arguments?.getString("environmentId") ?: return@composable
+            val vm: EnvironmentViewModel = viewModel(factory = factory)
+            EnvironmentDetailScreen(
+                environmentId = environmentId,
                 viewModel = vm,
                 onBack = { navController.popBackStack() },
-                onExpeditionClick = { id -> navController.navigate(Destinations.expeditionRoute(id)) },
-                onEcosystemClick = { id -> navController.navigate(Destinations.ecosystemBuilderRoute(id)) },
-                onChallengeClick = { id -> navController.navigate(Destinations.classifierRoute(id)) },
-                onMicroscopeClick = { navController.navigate(Destinations.MICROSCOPE) }
+                onSampleClick = { id -> navController.navigate(Destinations.sampleRoute(id)) },
+                onExperimentClick = { id -> navController.navigate(Destinations.experimentRoute(id)) },
+                onAnalyzerClick = { id -> navController.navigate(Destinations.analyzerRoute(id)) },
+                onCreatureBuilderClick = { id -> navController.navigate(Destinations.creatureBuilderRoute(id)) }
             )
         }
         composable(
-            Destinations.EXPEDITION,
-            arguments = listOf(navArgument("expeditionId") { type = NavType.StringType })
+            Destinations.SAMPLE,
+            arguments = listOf(navArgument("sampleId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val expeditionId = backStackEntry.arguments?.getString("expeditionId") ?: return@composable
-            val vm: ExpeditionViewModel = viewModel(factory = factory)
-            ExpeditionScreen(
-                expeditionId = expeditionId,
-                viewModel = vm,
-                onFinished = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
-            )
+            val sampleId = backStackEntry.arguments?.getString("sampleId") ?: return@composable
+            val vm: SampleExplorationViewModel = viewModel(factory = factory)
+            SampleExplorationScreen(sampleId = sampleId, viewModel = vm, onFinished = { navController.popBackStack() })
         }
         composable(Destinations.MICROSCOPE) {
             val vm: MicroscopeViewModel = viewModel(factory = factory)
             MicroscopeScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
+        composable(Destinations.CELL_JOURNEY) {
+            val vm: CellJourneyViewModel = viewModel(factory = factory)
+            CellJourneyScreen(viewModel = vm, onBack = { navController.popBackStack() })
+        }
         composable(Destinations.MUSEUM) {
             val vm: MuseumViewModel = viewModel(factory = factory)
-            var selectedOrganism by remember { mutableStateOf<Organism?>(null) }
-            val current = selectedOrganism
+            var selectedDiscovery by remember { mutableStateOf<MicroscopeDiscovery?>(null) }
+            val current = selectedDiscovery
             if (current == null) {
-                MuseumScreen(viewModel = vm, onOrganismClick = { selectedOrganism = it }, onBack = { navController.popBackStack() })
+                MuseumScreen(viewModel = vm, onDiscoveryClick = { selectedDiscovery = it }, onBack = { navController.popBackStack() })
             } else {
-                OrganismDetailScreen(organism = current, onBack = { selectedOrganism = null })
+                DiscoveryDetailScreen(discovery = current, onBack = { selectedDiscovery = null })
             }
         }
         composable(
-            Destinations.ECOSYSTEM_BUILDER,
-            arguments = listOf(navArgument("templateId") { type = NavType.StringType })
+            Destinations.EXPERIMENT,
+            arguments = listOf(navArgument("experimentId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val templateId = backStackEntry.arguments?.getString("templateId") ?: return@composable
-            val vm: EcosystemBuilderViewModel = viewModel(factory = factory)
-            EcosystemBuilderScreen(templateId = templateId, viewModel = vm, onSaved = { navController.popBackStack() })
+            val experimentId = backStackEntry.arguments?.getString("experimentId") ?: return@composable
+            val vm: ExperimentViewModel = viewModel(factory = factory)
+            ExperimentScreen(experimentId = experimentId, viewModel = vm, onSaved = { navController.popBackStack() })
         }
         composable(
-            Destinations.CLASSIFIER,
+            Destinations.CREATURE_BUILDER,
+            arguments = listOf(navArgument("environmentId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val environmentId = backStackEntry.arguments?.getString("environmentId") ?: return@composable
+            val vm: CreatureBuilderViewModel = viewModel(factory = factory)
+            CreatureBuilderScreen(environmentId = environmentId, viewModel = vm, onSaved = { navController.popBackStack() })
+        }
+        composable(
+            Destinations.ANALYZER,
             arguments = listOf(navArgument("challengeId") { type = NavType.StringType })
         ) { backStackEntry ->
             val challengeId = backStackEntry.arguments?.getString("challengeId") ?: return@composable
-            val vm: ClassifierViewModel = viewModel(factory = factory)
-            ClassifierScreen(challengeId = challengeId, viewModel = vm, onFinished = { navController.popBackStack() })
+            val vm: AnalyzerViewModel = viewModel(factory = factory)
+            AnalyzerScreen(challengeId = challengeId, viewModel = vm, onFinished = { navController.popBackStack() })
         }
         composable(Destinations.JOURNAL) {
-            val vm = viewModel<com.educalab.ninobiologo.ui.viewmodel.JournalViewModel>(factory = factory)
+            val vm = viewModel<JournalViewModel>(factory = factory)
             JournalScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
         composable(Destinations.PROFILE) {

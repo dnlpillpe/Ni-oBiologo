@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.educalab.ninobiologo.data.repository.BiologyRepository
 import com.educalab.ninobiologo.domain.logic.Validators
-import com.educalab.ninobiologo.domain.model.JournalEntry
+import com.educalab.ninobiologo.domain.model.DiscoveryJournalEntry
 import com.educalab.ninobiologo.domain.model.JournalEntryType
 import com.educalab.ninobiologo.util.AudioRecorderManager
 import com.educalab.ninobiologo.util.PhotoStorageManager
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 data class JournalUiState(
-    val entries: List<JournalEntry> = emptyList(),
+    val entries: List<DiscoveryJournalEntry> = emptyList(),
     val isRecording: Boolean = false,
     val playingEntryId: Long? = null
 )
@@ -37,16 +37,16 @@ class JournalViewModel(
         }
     }
 
-    fun addTextNote(title: String, note: String, biomeId: String?) {
+    fun addTextNote(title: String, note: String, environmentId: String?) {
         val sanitized = Validators.sanitizeJournalNote(note)
         viewModelScope.launch {
-            repository.addJournalEntry(JournalEntryType.TEXTO, title.ifBlank { "Nota del biólogo" }, sanitized, null, biomeId, System.currentTimeMillis())
+            repository.addJournalEntry(JournalEntryType.TEXTO, title.ifBlank { "Nota del biólogo" }, sanitized, null, environmentId, System.currentTimeMillis())
         }
     }
 
-    fun addPhotoNote(title: String, filePath: String, biomeId: String?) {
+    fun addPhotoNote(title: String, filePath: String, environmentId: String?) {
         viewModelScope.launch {
-            repository.addJournalEntry(JournalEntryType.FOTO, title.ifBlank { "Foto del explorador" }, "", filePath, biomeId, System.currentTimeMillis())
+            repository.addJournalEntry(JournalEntryType.FOTO, title.ifBlank { "Foto del explorador" }, "", filePath, environmentId, System.currentTimeMillis())
         }
     }
 
@@ -58,12 +58,12 @@ class JournalViewModel(
         _uiState.value = _uiState.value.copy(isRecording = result.isSuccess)
     }
 
-    fun stopRecordingAndSave(title: String, biomeId: String?) {
+    fun stopRecordingAndSave(title: String, environmentId: String?) {
         val result = audioRecorderManager.stopRecording()
         _uiState.value = _uiState.value.copy(isRecording = false)
         result.onSuccess { file ->
             viewModelScope.launch {
-                repository.addJournalEntry(JournalEntryType.AUDIO, title.ifBlank { "Nota de voz" }, "", file.absolutePath, biomeId, System.currentTimeMillis())
+                repository.addJournalEntry(JournalEntryType.AUDIO, title.ifBlank { "Nota de voz" }, "", file.absolutePath, environmentId, System.currentTimeMillis())
             }
         }
     }
@@ -73,7 +73,7 @@ class JournalViewModel(
         _uiState.value = _uiState.value.copy(isRecording = false)
     }
 
-    fun playEntry(entry: JournalEntry) {
+    fun playEntry(entry: DiscoveryJournalEntry) {
         val path = entry.filePath ?: return
         _uiState.value = _uiState.value.copy(playingEntryId = entry.id)
         audioRecorderManager.playFile(path) {
@@ -81,7 +81,7 @@ class JournalViewModel(
         }
     }
 
-    fun deleteEntry(entry: JournalEntry) {
+    fun deleteEntry(entry: DiscoveryJournalEntry) {
         entry.filePath?.let {
             if (entry.type == JournalEntryType.AUDIO) audioRecorderManager.deleteFile(it) else photoStorageManager.deletePhoto(it)
         }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,7 +42,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit) {
     var showResetDialog by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { SimpleTopBar(title = "Tu perfil", onBack = onBack) }) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     BiaGuide(expression = BiaExpression.FELIZ, sizeDp = 72)
@@ -58,12 +57,23 @@ fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit) {
                 Spacer(Modifier.height(4.dp))
                 XpBar(progress = state.progressToNextRank)
                 Spacer(Modifier.height(20.dp))
-                SectionHeader("Insignias", "${state.badgesUnlocked.size}/${state.allBadges.size} desbloqueadas")
+                SectionHeader("Mejoras del laboratorio", "${state.unlockedUpgrades.size}/${state.allUpgrades.size} desbloqueadas")
             }
             item {
-                LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(((state.allBadges.size / 4 + 1) * 88).dp)) {
-                    items(state.allBadges) { badge ->
-                        BadgeChip(name = badge.name, unlocked = state.badgesUnlocked.any { it.id == badge.id })
+                LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(((state.allUpgrades.size / 4 + 1) * 88).dp)) {
+                    items(state.allUpgrades) { upgrade ->
+                        BadgeChip(name = upgrade.name, unlocked = state.unlockedUpgrades.any { it.id == upgrade.id })
+                    }
+                }
+            }
+            item {
+                Spacer(Modifier.height(20.dp))
+                SectionHeader("Mi Museo de la Vida — coleccionables", "${state.unlockedCollectibles.size}/${state.allCollectibles.size} desbloqueados")
+            }
+            item {
+                LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(((state.allCollectibles.size / 4 + 1) * 88).dp)) {
+                    items(state.allCollectibles) { collectible ->
+                        BadgeChip(name = collectible.name, unlocked = state.unlockedCollectibles.any { it.id == collectible.id })
                     }
                 }
             }
@@ -91,7 +101,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit) {
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
                 AppCard(onClick = { showResetDialog = true }) {
-                    Text("Borra descubrimientos, expediciones, insignias y XP. Esta acción no se puede deshacer.", style = MaterialTheme.typography.bodyMedium)
+                    Text("Borra descubrimientos, experimentos, coleccionables y XP. Esta acción no se puede deshacer.", style = MaterialTheme.typography.bodyMedium)
                 }
                 Spacer(Modifier.height(32.dp))
             }
@@ -101,7 +111,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit) {
     if (showResetDialog) {
         ConfirmationDialog(
             title = "¿Reiniciar todo tu progreso?",
-            message = "Perderás tus descubrimientos, expediciones completadas, insignias y XP. Tu alias y avatar se mantendrán.",
+            message = "Perderás tus descubrimientos, experimentos, coleccionables y XP. Tu alias y avatar se mantendrán.",
             confirmLabel = "Sí, reiniciar",
             onConfirm = { viewModel.resetProgress(); showResetDialog = false },
             onDismiss = { showResetDialog = false }

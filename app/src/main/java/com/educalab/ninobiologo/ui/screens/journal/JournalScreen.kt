@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.educalab.ninobiologo.domain.model.JournalEntry
+import com.educalab.ninobiologo.domain.model.DiscoveryJournalEntry
 import com.educalab.ninobiologo.domain.model.JournalEntryType
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.EmptyState
@@ -92,7 +92,7 @@ fun JournalScreen(viewModel: JournalViewModel, onBack: () -> Unit) {
 
     Scaffold(topBar = { SimpleTopBar(title = "Diario del Explorador", onBack = onBack) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            SectionHeader("Diario del Explorador", "Registra lo que descubres en tus expediciones.")
+            SectionHeader("Diario del Explorador", "Registra lo que descubres al explorar tus muestras.")
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IconButton(onClick = {
@@ -154,7 +154,7 @@ fun JournalScreen(viewModel: JournalViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-private fun JournalEntryCard(entry: JournalEntry, isPlaying: Boolean, onPlay: () -> Unit, onDelete: () -> Unit) {
+private fun JournalEntryCard(entry: DiscoveryJournalEntry, isPlaying: Boolean, onPlay: () -> Unit, onDelete: () -> Unit) {
     AppCard {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Column(Modifier.weight(1f)) {

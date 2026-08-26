@@ -3,8 +3,8 @@ package com.educalab.ninobiologo.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.educalab.ninobiologo.data.repository.BiologyRepository
-import com.educalab.ninobiologo.domain.model.CollectionItem
-import com.educalab.ninobiologo.domain.model.Organism
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
+import com.educalab.ninobiologo.domain.model.MuseumItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,13 +13,14 @@ import kotlinx.coroutines.launch
 
 data class MuseumUiState(
     val loading: Boolean = true,
-    val allOrganisms: List<Organism> = emptyList(),
+    val allDiscoveries: List<MicroscopeDiscovery> = emptyList(),
     val discoveredIds: Set<String> = emptySet(),
-    val collectionItems: List<CollectionItem> = emptyList(),
+    val museumItems: List<MuseumItem> = emptyList(),
     val totalCount: Int = 0,
     val discoveredCount: Int = 0
 )
 
+/** "Mi Museo de la Vida": colección real de descubrimientos hechos con el microscopio. */
 class MuseumViewModel(private val repository: BiologyRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MuseumUiState())
@@ -27,16 +28,16 @@ class MuseumViewModel(private val repository: BiologyRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            combine(repository.observeAllOrganisms(), repository.observeDiscoveries()) { organisms, discoveredIds ->
-                organisms to discoveredIds.toSet()
-            }.collect { (organisms, discoveredSet) ->
-                val items = repository.getCollectionItems()
+            combine(repository.observeAllDiscoveries(), repository.observeDiscoveriesFound()) { discoveries, discoveredIds ->
+                discoveries to discoveredIds.toSet()
+            }.collect { (discoveries, discoveredSet) ->
+                val items = repository.getMuseumItems()
                 _uiState.value = MuseumUiState(
                     loading = false,
-                    allOrganisms = organisms,
+                    allDiscoveries = discoveries,
                     discoveredIds = discoveredSet,
-                    collectionItems = items,
-                    totalCount = organisms.size,
+                    museumItems = items,
+                    totalCount = discoveries.size,
                     discoveredCount = discoveredSet.size
                 )
             }
