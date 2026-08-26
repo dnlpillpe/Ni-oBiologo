@@ -6,39 +6,46 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.educalab.ninobiologo.data.local.converters.Converters
-import com.educalab.ninobiologo.data.local.dao.BadgeDao
-import com.educalab.ninobiologo.data.local.dao.BadgeUnlockDao
-import com.educalab.ninobiologo.data.local.dao.BiomeDao
 import com.educalab.ninobiologo.data.local.dao.BodySystemDao
 import com.educalab.ninobiologo.data.local.dao.CellModelDao
 import com.educalab.ninobiologo.data.local.dao.ChallengeAttemptDao
 import com.educalab.ninobiologo.data.local.dao.ChallengeDao
-import com.educalab.ninobiologo.data.local.dao.DiscoveryDao
-import com.educalab.ninobiologo.data.local.dao.EcosystemBuildDao
-import com.educalab.ninobiologo.data.local.dao.EcosystemTemplateDao
-import com.educalab.ninobiologo.data.local.dao.ExpeditionDao
-import com.educalab.ninobiologo.data.local.dao.ExpeditionProgressDao
-import com.educalab.ninobiologo.data.local.dao.JournalDao
-import com.educalab.ninobiologo.data.local.dao.OrganismDao
-import com.educalab.ninobiologo.data.local.dao.ProfileDao
-import com.educalab.ninobiologo.data.local.entity.BadgeEntity
-import com.educalab.ninobiologo.data.local.entity.BadgeUnlockEntity
-import com.educalab.ninobiologo.data.local.entity.BiologistProfileEntity
-import com.educalab.ninobiologo.data.local.entity.BiomeEntity
+import com.educalab.ninobiologo.data.local.dao.CollectibleUnlockDao
+import com.educalab.ninobiologo.data.local.dao.CreatureCollectionDao
+import com.educalab.ninobiologo.data.local.dao.CreaturePartOptionDao
+import com.educalab.ninobiologo.data.local.dao.DiscoveryFoundDao
+import com.educalab.ninobiologo.data.local.dao.DiscoveryJournalDao
+import com.educalab.ninobiologo.data.local.dao.EnvironmentDao
+import com.educalab.ninobiologo.data.local.dao.ExperimentDao
+import com.educalab.ninobiologo.data.local.dao.ExperimentResultDao
+import com.educalab.ninobiologo.data.local.dao.ExplorerProfileDao
+import com.educalab.ninobiologo.data.local.dao.LabCollectibleDao
+import com.educalab.ninobiologo.data.local.dao.LabUpgradeUnlockDao
+import com.educalab.ninobiologo.data.local.dao.LaboratoryUpgradeDao
+import com.educalab.ninobiologo.data.local.dao.MicroscopeDiscoveryDao
+import com.educalab.ninobiologo.data.local.dao.SampleDao
+import com.educalab.ninobiologo.data.local.dao.SampleExplorationDao
 import com.educalab.ninobiologo.data.local.entity.BodyOrganEntity
 import com.educalab.ninobiologo.data.local.entity.BodySystemEntity
 import com.educalab.ninobiologo.data.local.entity.CellModelEntity
 import com.educalab.ninobiologo.data.local.entity.CellStructureEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeAttemptEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemBuildEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemTemplateEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionProgressEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionStepEntity
-import com.educalab.ninobiologo.data.local.entity.JournalEntryEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismDiscoveryEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismEntity
+import com.educalab.ninobiologo.data.local.entity.CollectibleUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.CreatureCollectionEntity
+import com.educalab.ninobiologo.data.local.entity.CreaturePartOptionEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryFoundEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryJournalEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentResultEntity
+import com.educalab.ninobiologo.data.local.entity.ExplorerProfileEntity
+import com.educalab.ninobiologo.data.local.entity.LabCollectibleEntity
+import com.educalab.ninobiologo.data.local.entity.LabUpgradeUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.LaboratoryUpgradeEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopeDiscoveryEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopicEnvironmentEntity
+import com.educalab.ninobiologo.data.local.entity.SampleExplorationEntity
+import com.educalab.ninobiologo.data.local.entity.ScientificSampleEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -46,47 +53,54 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [
-        BiomeEntity::class,
-        OrganismEntity::class,
-        ExpeditionEntity::class,
-        ExpeditionStepEntity::class,
+        MicroscopicEnvironmentEntity::class,
+        ScientificSampleEntity::class,
+        MicroscopeDiscoveryEntity::class,
         CellModelEntity::class,
         CellStructureEntity::class,
         BodySystemEntity::class,
         BodyOrganEntity::class,
-        EcosystemTemplateEntity::class,
+        ExperimentEntity::class,
+        CreaturePartOptionEntity::class,
         ChallengeEntity::class,
-        BadgeEntity::class,
-        BiologistProfileEntity::class,
-        OrganismDiscoveryEntity::class,
-        ExpeditionProgressEntity::class,
+        LabCollectibleEntity::class,
+        LaboratoryUpgradeEntity::class,
+        ExplorerProfileEntity::class,
+        DiscoveryFoundEntity::class,
+        SampleExplorationEntity::class,
         ChallengeAttemptEntity::class,
-        BadgeUnlockEntity::class,
-        EcosystemBuildEntity::class,
-        JournalEntryEntity::class
+        CollectibleUnlockEntity::class,
+        LabUpgradeUnlockEntity::class,
+        CreatureCollectionEntity::class,
+        ExperimentResultEntity::class,
+        DiscoveryJournalEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun biomeDao(): BiomeDao
-    abstract fun organismDao(): OrganismDao
-    abstract fun expeditionDao(): ExpeditionDao
+    abstract fun environmentDao(): EnvironmentDao
+    abstract fun sampleDao(): SampleDao
+    abstract fun microscopeDiscoveryDao(): MicroscopeDiscoveryDao
     abstract fun cellModelDao(): CellModelDao
     abstract fun bodySystemDao(): BodySystemDao
-    abstract fun ecosystemTemplateDao(): EcosystemTemplateDao
+    abstract fun experimentDao(): ExperimentDao
+    abstract fun creaturePartOptionDao(): CreaturePartOptionDao
     abstract fun challengeDao(): ChallengeDao
-    abstract fun badgeDao(): BadgeDao
+    abstract fun labCollectibleDao(): LabCollectibleDao
+    abstract fun laboratoryUpgradeDao(): LaboratoryUpgradeDao
 
-    abstract fun profileDao(): ProfileDao
-    abstract fun discoveryDao(): DiscoveryDao
-    abstract fun expeditionProgressDao(): ExpeditionProgressDao
+    abstract fun explorerProfileDao(): ExplorerProfileDao
+    abstract fun discoveryFoundDao(): DiscoveryFoundDao
+    abstract fun sampleExplorationDao(): SampleExplorationDao
     abstract fun challengeAttemptDao(): ChallengeAttemptDao
-    abstract fun badgeUnlockDao(): BadgeUnlockDao
-    abstract fun ecosystemBuildDao(): EcosystemBuildDao
-    abstract fun journalDao(): JournalDao
+    abstract fun collectibleUnlockDao(): CollectibleUnlockDao
+    abstract fun labUpgradeUnlockDao(): LabUpgradeUnlockDao
+    abstract fun creatureCollectionDao(): CreatureCollectionDao
+    abstract fun experimentResultDao(): ExperimentResultDao
+    abstract fun discoveryJournalDao(): DiscoveryJournalDao
 
     companion object {
         private const val DATABASE_NAME = "ninobiologo.db"

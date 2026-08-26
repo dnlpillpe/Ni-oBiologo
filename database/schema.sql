@@ -1,12 +1,12 @@
--- NiñoBiólogo: Exploradores de la Vida — esquema SQLite (Room, versión 1)
+-- NiñoBiólogo: Vida en Miniatura — esquema SQLite (Room, versión 2)
 -- Generado a partir de las entidades reales en app/src/main/java/.../data/local/entity
--- Motor: SQLite (a través de Room 2.6.1). Ver docs/BASE_DE_DATOS.md para el DER completo.
+-- Motor: SQLite (a través de Room 2.6.1).
 
 PRAGMA foreign_keys = ON;
 
 -- ===================== CONTENIDO (semilla, solo lectura para el usuario) =====================
 
-CREATE TABLE biomes (
+CREATE TABLE microscopic_environments (
     id TEXT NOT NULL PRIMARY KEY,
     orderIndex INTEGER NOT NULL,
     name TEXT NOT NULL,
@@ -17,49 +17,37 @@ CREATE TABLE biomes (
     secondaryColorHex TEXT NOT NULL
 );
 
-CREATE TABLE organisms (
+CREATE TABLE scientific_samples (
     id TEXT NOT NULL PRIMARY KEY,
-    biomeId TEXT NOT NULL,
+    environmentId TEXT NOT NULL,
+    orderIndex INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    origin TEXT NOT NULL,
+    difficulty INTEGER NOT NULL,
+    iconKey TEXT NOT NULL,
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE CASCADE
+);
+CREATE INDEX index_scientific_samples_environmentId ON scientific_samples(environmentId);
+
+CREATE TABLE microscope_discoveries (
+    id TEXT NOT NULL PRIMARY KEY,
+    sampleId TEXT NOT NULL,
+    environmentId TEXT NOT NULL,
     name TEXT NOT NULL,
     scientificName TEXT NOT NULL,
     category TEXT NOT NULL,
     habitat TEXT NOT NULL,
     diet TEXT NOT NULL,
-    trophicRole TEXT NOT NULL,
     characteristics TEXT NOT NULL,
-    funFact TEXT NOT NULL,
+    curiosity TEXT NOT NULL,
     rarity TEXT NOT NULL,
     iconKey TEXT NOT NULL,
-    FOREIGN KEY (biomeId) REFERENCES biomes(id) ON DELETE CASCADE
+    FOREIGN KEY (sampleId) REFERENCES scientific_samples(id) ON DELETE CASCADE,
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE CASCADE
 );
-CREATE INDEX index_organisms_biomeId ON organisms(biomeId);
-CREATE INDEX index_organisms_name ON organisms(name);
-
-CREATE TABLE expeditions (
-    id TEXT NOT NULL PRIMARY KEY,
-    biomeId TEXT NOT NULL,
-    orderIndex INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    narrative TEXT NOT NULL,
-    missionType TEXT NOT NULL,
-    difficulty INTEGER NOT NULL,
-    relatedOrganismIds TEXT NOT NULL,
-    rewardXp INTEGER NOT NULL,
-    requiredRank TEXT NOT NULL,
-    FOREIGN KEY (biomeId) REFERENCES biomes(id) ON DELETE CASCADE
-);
-CREATE INDEX index_expeditions_biomeId ON expeditions(biomeId);
-
-CREATE TABLE expedition_steps (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    expeditionId TEXT NOT NULL,
-    orderIndex INTEGER NOT NULL,
-    prompt TEXT NOT NULL,
-    type TEXT NOT NULL,
-    hint TEXT NOT NULL,
-    FOREIGN KEY (expeditionId) REFERENCES expeditions(id) ON DELETE CASCADE
-);
-CREATE INDEX index_expedition_steps_expeditionId ON expedition_steps(expeditionId);
+CREATE INDEX index_microscope_discoveries_sampleId ON microscope_discoveries(sampleId);
+CREATE INDEX index_microscope_discoveries_environmentId ON microscope_discoveries(environmentId);
+CREATE INDEX index_microscope_discoveries_name ON microscope_discoveries(name);
 
 CREATE TABLE cell_models (
     id TEXT NOT NULL PRIMARY KEY,
@@ -94,47 +82,70 @@ CREATE TABLE body_organs (
 );
 CREATE INDEX index_body_organs_bodySystemId ON body_organs(bodySystemId);
 
-CREATE TABLE ecosystem_templates (
+CREATE TABLE experiments (
     id TEXT NOT NULL PRIMARY KEY,
-    biomeId TEXT NOT NULL,
+    environmentId TEXT NOT NULL,
+    orderIndex INTEGER NOT NULL,
+    question TEXT NOT NULL,
+    description TEXT NOT NULL,
+    variableName TEXT NOT NULL,
+    variableUnit TEXT NOT NULL,
+    variableMin INTEGER NOT NULL,
+    variableMax INTEGER NOT NULL,
+    idealMin INTEGER NOT NULL,
+    idealMax INTEGER NOT NULL,
+    rewardXp INTEGER NOT NULL,
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE CASCADE
+);
+CREATE INDEX index_experiments_environmentId ON experiments(environmentId);
+
+CREATE TABLE creature_part_options (
+    id TEXT NOT NULL PRIMARY KEY,
+    category TEXT NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    availableOrganismIds TEXT NOT NULL,
-    idealProducers INTEGER NOT NULL,
-    idealHerbivores INTEGER NOT NULL,
-    idealCarnivores INTEGER NOT NULL,
-    idealDecomposers INTEGER NOT NULL,
-    FOREIGN KEY (biomeId) REFERENCES biomes(id) ON DELETE CASCADE
+    bestEnvironmentId TEXT NOT NULL
 );
-CREATE INDEX index_ecosystem_templates_biomeId ON ecosystem_templates(biomeId);
 
 CREATE TABLE challenges (
     id TEXT NOT NULL PRIMARY KEY,
-    biomeId TEXT NOT NULL,
+    environmentId TEXT NOT NULL,
     type TEXT NOT NULL,
     title TEXT NOT NULL,
     instructions TEXT NOT NULL,
-    relatedOrganismIds TEXT NOT NULL,
+    relatedDiscoveryIds TEXT NOT NULL,
     rewardXp INTEGER NOT NULL,
-    FOREIGN KEY (biomeId) REFERENCES biomes(id) ON DELETE CASCADE
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE CASCADE
 );
-CREATE INDEX index_challenges_biomeId ON challenges(biomeId);
+CREATE INDEX index_challenges_environmentId ON challenges(environmentId);
 
-CREATE TABLE badges (
+CREATE TABLE lab_collectibles (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     iconKey TEXT NOT NULL,
     criteriaType TEXT NOT NULL,
     criteriaValue INTEGER NOT NULL,
-    biomeId TEXT,
-    FOREIGN KEY (biomeId) REFERENCES biomes(id) ON DELETE SET NULL
+    environmentId TEXT,
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE SET NULL
 );
-CREATE INDEX index_badges_biomeId ON badges(biomeId);
+CREATE INDEX index_lab_collectibles_environmentId ON lab_collectibles(environmentId);
+
+CREATE TABLE laboratory_upgrades (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    iconKey TEXT NOT NULL,
+    criteriaType TEXT NOT NULL,
+    criteriaValue INTEGER NOT NULL,
+    environmentId TEXT,
+    FOREIGN KEY (environmentId) REFERENCES microscopic_environments(id) ON DELETE SET NULL
+);
+CREATE INDEX index_laboratory_upgrades_environmentId ON laboratory_upgrades(environmentId);
 
 -- ===================== PROGRESO (datos reales del jugador, mutables) =====================
 
-CREATE TABLE biologist_profile (
+CREATE TABLE explorer_profile (
     id INTEGER NOT NULL PRIMARY KEY,
     alias TEXT NOT NULL,
     avatarKey TEXT NOT NULL,
@@ -145,25 +156,23 @@ CREATE TABLE biologist_profile (
     createdAtEpochMillis INTEGER NOT NULL
 );
 
-CREATE TABLE organism_discoveries (
-    organismId TEXT NOT NULL PRIMARY KEY,
+CREATE TABLE discoveries_found (
+    discoveryId TEXT NOT NULL PRIMARY KEY,
     discoveredAtEpochMillis INTEGER NOT NULL,
-    viaExpeditionId TEXT,
-    FOREIGN KEY (organismId) REFERENCES organisms(id) ON DELETE CASCADE
+    viaSampleId TEXT,
+    FOREIGN KEY (discoveryId) REFERENCES microscope_discoveries(id) ON DELETE CASCADE
 );
-CREATE INDEX index_organism_discoveries_organismId ON organism_discoveries(organismId);
+CREATE INDEX index_discoveries_found_discoveryId ON discoveries_found(discoveryId);
 
-CREATE TABLE expedition_progress (
-    expeditionId TEXT NOT NULL PRIMARY KEY,
+CREATE TABLE sample_exploration (
+    sampleId TEXT NOT NULL PRIMARY KEY,
     state TEXT NOT NULL,
-    stepsCompleted INTEGER NOT NULL,
-    totalSteps INTEGER NOT NULL,
-    bestStars INTEGER NOT NULL,
-    timesCompleted INTEGER NOT NULL,
+    discoveriesFound INTEGER NOT NULL,
+    totalDiscoveries INTEGER NOT NULL,
     lastAttemptEpochMillis INTEGER,
-    FOREIGN KEY (expeditionId) REFERENCES expeditions(id) ON DELETE CASCADE
+    FOREIGN KEY (sampleId) REFERENCES scientific_samples(id) ON DELETE CASCADE
 );
-CREATE INDEX index_expedition_progress_expeditionId ON expedition_progress(expeditionId);
+CREATE INDEX index_sample_exploration_sampleId ON sample_exploration(sampleId);
 
 CREATE TABLE challenge_attempts (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -177,35 +186,52 @@ CREATE TABLE challenge_attempts (
 );
 CREATE INDEX index_challenge_attempts_challengeId ON challenge_attempts(challengeId);
 
-CREATE TABLE badge_unlocks (
-    badgeId TEXT NOT NULL PRIMARY KEY,
+CREATE TABLE collectible_unlocks (
+    collectibleId TEXT NOT NULL PRIMARY KEY,
     unlockedAtEpochMillis INTEGER NOT NULL,
-    FOREIGN KEY (badgeId) REFERENCES badges(id) ON DELETE CASCADE
+    FOREIGN KEY (collectibleId) REFERENCES lab_collectibles(id) ON DELETE CASCADE
 );
-CREATE INDEX index_badge_unlocks_badgeId ON badge_unlocks(badgeId);
+CREATE INDEX index_collectible_unlocks_collectibleId ON collectible_unlocks(collectibleId);
 
-CREATE TABLE ecosystem_builds (
+CREATE TABLE lab_upgrade_unlocks (
+    upgradeId TEXT NOT NULL PRIMARY KEY,
+    unlockedAtEpochMillis INTEGER NOT NULL,
+    FOREIGN KEY (upgradeId) REFERENCES laboratory_upgrades(id) ON DELETE CASCADE
+);
+CREATE INDEX index_lab_upgrade_unlocks_upgradeId ON lab_upgrade_unlocks(upgradeId);
+
+CREATE TABLE creature_collection (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    templateId TEXT NOT NULL,
-    producers INTEGER NOT NULL,
-    herbivores INTEGER NOT NULL,
-    carnivores INTEGER NOT NULL,
-    decomposers INTEGER NOT NULL,
-    balanceScore INTEGER NOT NULL,
-    status TEXT NOT NULL,
-    savedAtEpochMillis INTEGER NOT NULL,
-    FOREIGN KEY (templateId) REFERENCES ecosystem_templates(id) ON DELETE CASCADE
+    name TEXT NOT NULL,
+    formaId TEXT NOT NULL,
+    movimientoId TEXT NOT NULL,
+    alimentacionId TEXT NOT NULL,
+    adaptacionId TEXT NOT NULL,
+    targetEnvironmentId TEXT NOT NULL,
+    fitScore INTEGER NOT NULL,
+    createdAtEpochMillis INTEGER NOT NULL
 );
-CREATE INDEX index_ecosystem_builds_templateId ON ecosystem_builds(templateId);
 
-CREATE TABLE journal_entries (
+CREATE TABLE experiment_results (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    experimentId TEXT NOT NULL,
+    variableValue INTEGER NOT NULL,
+    outcome TEXT NOT NULL,
+    message TEXT NOT NULL,
+    xpAwarded INTEGER NOT NULL,
+    savedAtEpochMillis INTEGER NOT NULL,
+    FOREIGN KEY (experimentId) REFERENCES experiments(id) ON DELETE CASCADE
+);
+CREATE INDEX index_experiment_results_experimentId ON experiment_results(experimentId);
+
+CREATE TABLE discovery_journal (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
     title TEXT NOT NULL,
     note TEXT NOT NULL,
     filePath TEXT,
-    relatedBiomeId TEXT,
+    relatedEnvironmentId TEXT,
     createdAtEpochMillis INTEGER NOT NULL,
-    FOREIGN KEY (relatedBiomeId) REFERENCES biomes(id) ON DELETE SET NULL
+    FOREIGN KEY (relatedEnvironmentId) REFERENCES microscopic_environments(id) ON DELETE SET NULL
 );
-CREATE INDEX index_journal_entries_relatedBiomeId ON journal_entries(relatedBiomeId);
+CREATE INDEX index_discovery_journal_relatedEnvironmentId ON discovery_journal(relatedEnvironmentId);

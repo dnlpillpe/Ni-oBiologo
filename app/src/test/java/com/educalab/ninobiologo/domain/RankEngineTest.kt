@@ -55,18 +55,17 @@ class RankEngineTest {
     fun `computeXp suma correctamente todos los componentes`() {
         val breakdown = RankEngine.computeXp(
             discoveryXpSum = 100,
-            expeditionStarsSum = 10,
-            stableEcosystemsCount = 2,
-            challengeXpSum = 40,
-            badgesUnlockedCount = 3
+            successfulExperimentsCount = 2,
+            analysisXpSum = 40,
+            collectiblesUnlockedCount = 3
         )
-        // 100 + 10*15 + 2*25 + 40 + 3*20 = 100+150+50+40+60 = 400
-        assertEquals(400, breakdown.total)
+        // 100 + 2*25 + 40 + 3*20 = 100+50+40+60 = 250
+        assertEquals(250, breakdown.total)
     }
 
     @Test
     fun `computeXp con valores negativos nunca produce total negativo (caso limite)`() {
-        val breakdown = RankEngine.computeXp(-50, -10, -3, -40, -2)
+        val breakdown = RankEngine.computeXp(-50, -3, -40, -2)
         assertTrue(breakdown.total >= 0)
         assertEquals(0, breakdown.total)
     }

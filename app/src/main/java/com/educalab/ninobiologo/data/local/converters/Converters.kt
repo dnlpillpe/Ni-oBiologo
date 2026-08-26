@@ -1,16 +1,15 @@
 package com.educalab.ninobiologo.data.local.converters
 
 import androidx.room.TypeConverter
-import com.educalab.ninobiologo.domain.model.BadgeCriteriaType
+import com.educalab.ninobiologo.domain.model.AnalysisTaskType
 import com.educalab.ninobiologo.domain.model.BiologistRank
-import com.educalab.ninobiologo.domain.model.ChallengeType
-import com.educalab.ninobiologo.domain.model.EcosystemStatus
+import com.educalab.ninobiologo.domain.model.CreaturePartCategory
+import com.educalab.ninobiologo.domain.model.DiscoveryCategory
+import com.educalab.ninobiologo.domain.model.DiscoveryRarity
+import com.educalab.ninobiologo.domain.model.ExperimentOutcome
 import com.educalab.ninobiologo.domain.model.JournalEntryType
-import com.educalab.ninobiologo.domain.model.MissionType
-import com.educalab.ninobiologo.domain.model.ModuleState
-import com.educalab.ninobiologo.domain.model.OrganismCategory
-import com.educalab.ninobiologo.domain.model.OrganismRarity
-import com.educalab.ninobiologo.domain.model.TrophicRole
+import com.educalab.ninobiologo.domain.model.SampleExplorationState
+import com.educalab.ninobiologo.domain.model.UnlockCriteriaType
 
 /**
  * Convertidores de Room. Las listas de String se serializan con un delimitador que no aparece en
@@ -26,29 +25,19 @@ class Converters {
         if (value.isNullOrBlank()) emptyList() else value.split("|").filter { it.isNotBlank() }
 
     @TypeConverter
-    fun fromOrganismCategory(value: OrganismCategory): String = value.name
+    fun fromDiscoveryCategory(value: DiscoveryCategory): String = value.name
     @TypeConverter
-    fun toOrganismCategory(value: String): OrganismCategory = OrganismCategory.valueOf(value)
+    fun toDiscoveryCategory(value: String): DiscoveryCategory = DiscoveryCategory.valueOf(value)
 
     @TypeConverter
-    fun fromOrganismRarity(value: OrganismRarity): String = value.name
+    fun fromDiscoveryRarity(value: DiscoveryRarity): String = value.name
     @TypeConverter
-    fun toOrganismRarity(value: String): OrganismRarity = OrganismRarity.valueOf(value)
+    fun toDiscoveryRarity(value: String): DiscoveryRarity = DiscoveryRarity.valueOf(value)
 
     @TypeConverter
-    fun fromTrophicRole(value: TrophicRole): String = value.name
+    fun fromSampleExplorationState(value: SampleExplorationState): String = value.name
     @TypeConverter
-    fun toTrophicRole(value: String): TrophicRole = TrophicRole.valueOf(value)
-
-    @TypeConverter
-    fun fromMissionType(value: MissionType): String = value.name
-    @TypeConverter
-    fun toMissionType(value: String): MissionType = MissionType.valueOf(value)
-
-    @TypeConverter
-    fun fromModuleState(value: ModuleState): String = value.name
-    @TypeConverter
-    fun toModuleState(value: String): ModuleState = ModuleState.valueOf(value)
+    fun toSampleExplorationState(value: String): SampleExplorationState = SampleExplorationState.valueOf(value)
 
     @TypeConverter
     fun fromBiologistRank(value: BiologistRank): String = value.name
@@ -56,14 +45,14 @@ class Converters {
     fun toBiologistRank(value: String): BiologistRank = BiologistRank.valueOf(value)
 
     @TypeConverter
-    fun fromChallengeType(value: ChallengeType): String = value.name
+    fun fromAnalysisTaskType(value: AnalysisTaskType): String = value.name
     @TypeConverter
-    fun toChallengeType(value: String): ChallengeType = ChallengeType.valueOf(value)
+    fun toAnalysisTaskType(value: String): AnalysisTaskType = AnalysisTaskType.valueOf(value)
 
     @TypeConverter
-    fun fromEcosystemStatus(value: EcosystemStatus): String = value.name
+    fun fromExperimentOutcome(value: ExperimentOutcome): String = value.name
     @TypeConverter
-    fun toEcosystemStatus(value: String): EcosystemStatus = EcosystemStatus.valueOf(value)
+    fun toExperimentOutcome(value: String): ExperimentOutcome = ExperimentOutcome.valueOf(value)
 
     @TypeConverter
     fun fromJournalEntryType(value: JournalEntryType): String = value.name
@@ -71,7 +60,12 @@ class Converters {
     fun toJournalEntryType(value: String): JournalEntryType = JournalEntryType.valueOf(value)
 
     @TypeConverter
-    fun fromBadgeCriteriaType(value: BadgeCriteriaType): String = value.name
+    fun fromCreaturePartCategory(value: CreaturePartCategory): String = value.name
     @TypeConverter
-    fun toBadgeCriteriaType(value: String): BadgeCriteriaType = BadgeCriteriaType.valueOf(value)
+    fun toCreaturePartCategory(value: String): CreaturePartCategory = CreaturePartCategory.valueOf(value)
+
+    @TypeConverter
+    fun fromUnlockCriteriaType(value: UnlockCriteriaType): String = value.name
+    @TypeConverter
+    fun toUnlockCriteriaType(value: String): UnlockCriteriaType = UnlockCriteriaType.valueOf(value)
 }

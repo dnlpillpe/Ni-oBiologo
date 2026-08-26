@@ -4,12 +4,12 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.educalab.ninobiologo.domain.model.EcosystemStatus
+import com.educalab.ninobiologo.domain.model.ExperimentOutcome
 import com.educalab.ninobiologo.domain.model.JournalEntryType
-import com.educalab.ninobiologo.domain.model.ModuleState
+import com.educalab.ninobiologo.domain.model.SampleExplorationState
 
-@Entity(tableName = "biologist_profile")
-data class BiologistProfileEntity(
+@Entity(tableName = "explorer_profile")
+data class ExplorerProfileEntity(
     @PrimaryKey val id: Long = 1L,
     val alias: String,
     val avatarKey: String,
@@ -21,28 +21,26 @@ data class BiologistProfileEntity(
 )
 
 @Entity(
-    tableName = "organism_discoveries",
-    foreignKeys = [ForeignKey(entity = OrganismEntity::class, parentColumns = ["id"], childColumns = ["organismId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("organismId")]
+    tableName = "discoveries_found",
+    foreignKeys = [ForeignKey(entity = MicroscopeDiscoveryEntity::class, parentColumns = ["id"], childColumns = ["discoveryId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("discoveryId")]
 )
-data class OrganismDiscoveryEntity(
-    @PrimaryKey val organismId: String,
+data class DiscoveryFoundEntity(
+    @PrimaryKey val discoveryId: String,
     val discoveredAtEpochMillis: Long,
-    val viaExpeditionId: String?
+    val viaSampleId: String?
 )
 
 @Entity(
-    tableName = "expedition_progress",
-    foreignKeys = [ForeignKey(entity = ExpeditionEntity::class, parentColumns = ["id"], childColumns = ["expeditionId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("expeditionId")]
+    tableName = "sample_exploration",
+    foreignKeys = [ForeignKey(entity = ScientificSampleEntity::class, parentColumns = ["id"], childColumns = ["sampleId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("sampleId")]
 )
-data class ExpeditionProgressEntity(
-    @PrimaryKey val expeditionId: String,
-    val state: ModuleState,
-    val stepsCompleted: Int,
-    val totalSteps: Int,
-    val bestStars: Int,
-    val timesCompleted: Int,
+data class SampleExplorationEntity(
+    @PrimaryKey val sampleId: String,
+    val state: SampleExplorationState,
+    val discoveriesFound: Int,
+    val totalDiscoveries: Int,
     val lastAttemptEpochMillis: Long?
 )
 
@@ -62,43 +60,64 @@ data class ChallengeAttemptEntity(
 )
 
 @Entity(
-    tableName = "badge_unlocks",
-    foreignKeys = [ForeignKey(entity = BadgeEntity::class, parentColumns = ["id"], childColumns = ["badgeId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("badgeId")]
+    tableName = "collectible_unlocks",
+    foreignKeys = [ForeignKey(entity = LabCollectibleEntity::class, parentColumns = ["id"], childColumns = ["collectibleId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("collectibleId")]
 )
-data class BadgeUnlockEntity(
-    @PrimaryKey val badgeId: String,
+data class CollectibleUnlockEntity(
+    @PrimaryKey val collectibleId: String,
     val unlockedAtEpochMillis: Long
 )
 
 @Entity(
-    tableName = "ecosystem_builds",
-    foreignKeys = [ForeignKey(entity = EcosystemTemplateEntity::class, parentColumns = ["id"], childColumns = ["templateId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("templateId")]
+    tableName = "lab_upgrade_unlocks",
+    foreignKeys = [ForeignKey(entity = LaboratoryUpgradeEntity::class, parentColumns = ["id"], childColumns = ["upgradeId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("upgradeId")]
 )
-data class EcosystemBuildEntity(
+data class LabUpgradeUnlockEntity(
+    @PrimaryKey val upgradeId: String,
+    val unlockedAtEpochMillis: Long
+)
+
+@Entity(tableName = "creature_collection")
+data class CreatureCollectionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val templateId: String,
-    val producers: Int,
-    val herbivores: Int,
-    val carnivores: Int,
-    val decomposers: Int,
-    val balanceScore: Int,
-    val status: EcosystemStatus,
+    val name: String,
+    val formaId: String,
+    val movimientoId: String,
+    val alimentacionId: String,
+    val adaptacionId: String,
+    val targetEnvironmentId: String,
+    val fitScore: Int,
+    val createdAtEpochMillis: Long
+)
+
+@Entity(
+    tableName = "experiment_results",
+    foreignKeys = [ForeignKey(entity = ExperimentEntity::class, parentColumns = ["id"], childColumns = ["experimentId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("experimentId")]
+)
+data class ExperimentResultEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val experimentId: String,
+    val variableValue: Int,
+    val outcome: ExperimentOutcome,
+    val message: String,
+    val xpAwarded: Int,
     val savedAtEpochMillis: Long
 )
 
 @Entity(
-    tableName = "journal_entries",
-    foreignKeys = [ForeignKey(entity = BiomeEntity::class, parentColumns = ["id"], childColumns = ["relatedBiomeId"], onDelete = ForeignKey.SET_NULL)],
-    indices = [Index("relatedBiomeId")]
+    tableName = "discovery_journal",
+    foreignKeys = [ForeignKey(entity = MicroscopicEnvironmentEntity::class, parentColumns = ["id"], childColumns = ["relatedEnvironmentId"], onDelete = ForeignKey.SET_NULL)],
+    indices = [Index("relatedEnvironmentId")]
 )
-data class JournalEntryEntity(
+data class DiscoveryJournalEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val type: JournalEntryType,
     val title: String,
     val note: String,
     val filePath: String?,
-    val relatedBiomeId: String?,
+    val relatedEnvironmentId: String?,
     val createdAtEpochMillis: Long
 )

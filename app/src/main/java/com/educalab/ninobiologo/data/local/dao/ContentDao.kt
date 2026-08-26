@@ -4,73 +4,71 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.educalab.ninobiologo.data.local.entity.BadgeEntity
-import com.educalab.ninobiologo.data.local.entity.BiomeEntity
 import com.educalab.ninobiologo.data.local.entity.BodyOrganEntity
 import com.educalab.ninobiologo.data.local.entity.BodySystemEntity
 import com.educalab.ninobiologo.data.local.entity.CellModelEntity
 import com.educalab.ninobiologo.data.local.entity.CellStructureEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemTemplateEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionStepEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismEntity
+import com.educalab.ninobiologo.data.local.entity.CreaturePartOptionEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentEntity
+import com.educalab.ninobiologo.data.local.entity.LabCollectibleEntity
+import com.educalab.ninobiologo.data.local.entity.LaboratoryUpgradeEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopeDiscoveryEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopicEnvironmentEntity
+import com.educalab.ninobiologo.data.local.entity.ScientificSampleEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface BiomeDao {
+interface EnvironmentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(biomes: List<BiomeEntity>)
+    suspend fun insertAll(environments: List<MicroscopicEnvironmentEntity>)
 
-    @Query("SELECT * FROM biomes ORDER BY orderIndex ASC")
-    fun observeAll(): Flow<List<BiomeEntity>>
+    @Query("SELECT * FROM microscopic_environments ORDER BY orderIndex ASC")
+    fun observeAll(): Flow<List<MicroscopicEnvironmentEntity>>
 
-    @Query("SELECT * FROM biomes WHERE id = :id")
-    suspend fun getById(id: String): BiomeEntity?
+    @Query("SELECT * FROM microscopic_environments WHERE id = :id")
+    suspend fun getById(id: String): MicroscopicEnvironmentEntity?
 
-    @Query("SELECT COUNT(*) FROM biomes")
+    @Query("SELECT COUNT(*) FROM microscopic_environments")
     suspend fun count(): Int
 }
 
 @Dao
-interface OrganismDao {
+interface SampleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(organisms: List<OrganismEntity>)
+    suspend fun insertAll(samples: List<ScientificSampleEntity>)
 
-    @Query("SELECT * FROM organisms WHERE biomeId = :biomeId ORDER BY name ASC")
-    fun observeByBiome(biomeId: String): Flow<List<OrganismEntity>>
+    @Query("SELECT * FROM scientific_samples WHERE environmentId = :environmentId ORDER BY orderIndex ASC")
+    fun observeByEnvironment(environmentId: String): Flow<List<ScientificSampleEntity>>
 
-    @Query("SELECT * FROM organisms ORDER BY name ASC")
-    fun observeAll(): Flow<List<OrganismEntity>>
+    @Query("SELECT * FROM scientific_samples WHERE id = :id")
+    suspend fun getById(id: String): ScientificSampleEntity?
 
-    @Query("SELECT * FROM organisms WHERE id = :id")
-    suspend fun getById(id: String): OrganismEntity?
-
-    @Query("SELECT * FROM organisms WHERE id IN (:ids)")
-    suspend fun getByIds(ids: List<String>): List<OrganismEntity>
-
-    @Query("SELECT COUNT(*) FROM organisms")
+    @Query("SELECT COUNT(*) FROM scientific_samples")
     suspend fun count(): Int
 }
 
 @Dao
-interface ExpeditionDao {
+interface MicroscopeDiscoveryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(expeditions: List<ExpeditionEntity>)
+    suspend fun insertAll(discoveries: List<MicroscopeDiscoveryEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSteps(steps: List<ExpeditionStepEntity>)
+    @Query("SELECT * FROM microscope_discoveries WHERE sampleId = :sampleId ORDER BY name ASC")
+    suspend fun getBySample(sampleId: String): List<MicroscopeDiscoveryEntity>
 
-    @Query("SELECT * FROM expeditions WHERE biomeId = :biomeId ORDER BY orderIndex ASC")
-    fun observeByBiome(biomeId: String): Flow<List<ExpeditionEntity>>
+    @Query("SELECT * FROM microscope_discoveries WHERE environmentId = :environmentId ORDER BY name ASC")
+    fun observeByEnvironment(environmentId: String): Flow<List<MicroscopeDiscoveryEntity>>
 
-    @Query("SELECT * FROM expeditions WHERE id = :id")
-    suspend fun getById(id: String): ExpeditionEntity?
+    @Query("SELECT * FROM microscope_discoveries ORDER BY name ASC")
+    fun observeAll(): Flow<List<MicroscopeDiscoveryEntity>>
 
-    @Query("SELECT * FROM expedition_steps WHERE expeditionId = :expeditionId ORDER BY orderIndex ASC")
-    suspend fun getSteps(expeditionId: String): List<ExpeditionStepEntity>
+    @Query("SELECT * FROM microscope_discoveries WHERE id = :id")
+    suspend fun getById(id: String): MicroscopeDiscoveryEntity?
 
-    @Query("SELECT COUNT(*) FROM expeditions")
+    @Query("SELECT * FROM microscope_discoveries WHERE id IN (:ids)")
+    suspend fun getByIds(ids: List<String>): List<MicroscopeDiscoveryEntity>
+
+    @Query("SELECT COUNT(*) FROM microscope_discoveries")
     suspend fun count(): Int
 }
 
@@ -111,17 +109,32 @@ interface BodySystemDao {
 }
 
 @Dao
-interface EcosystemTemplateDao {
+interface ExperimentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(templates: List<EcosystemTemplateEntity>)
+    suspend fun insertAll(experiments: List<ExperimentEntity>)
 
-    @Query("SELECT * FROM ecosystem_templates WHERE biomeId = :biomeId")
-    fun observeByBiome(biomeId: String): Flow<List<EcosystemTemplateEntity>>
+    @Query("SELECT * FROM experiments WHERE environmentId = :environmentId ORDER BY orderIndex ASC")
+    fun observeByEnvironment(environmentId: String): Flow<List<ExperimentEntity>>
 
-    @Query("SELECT * FROM ecosystem_templates WHERE id = :id")
-    suspend fun getById(id: String): EcosystemTemplateEntity?
+    @Query("SELECT * FROM experiments WHERE id = :id")
+    suspend fun getById(id: String): ExperimentEntity?
 
-    @Query("SELECT COUNT(*) FROM ecosystem_templates")
+    @Query("SELECT COUNT(*) FROM experiments")
+    suspend fun count(): Int
+}
+
+@Dao
+interface CreaturePartOptionDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(options: List<CreaturePartOptionEntity>)
+
+    @Query("SELECT * FROM creature_part_options")
+    fun observeAll(): Flow<List<CreaturePartOptionEntity>>
+
+    @Query("SELECT * FROM creature_part_options WHERE id IN (:ids)")
+    suspend fun getByIds(ids: List<String>): List<CreaturePartOptionEntity>
+
+    @Query("SELECT COUNT(*) FROM creature_part_options")
     suspend fun count(): Int
 }
 
@@ -130,8 +143,8 @@ interface ChallengeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(challenges: List<ChallengeEntity>)
 
-    @Query("SELECT * FROM challenges WHERE biomeId = :biomeId")
-    fun observeByBiome(biomeId: String): Flow<List<ChallengeEntity>>
+    @Query("SELECT * FROM challenges WHERE environmentId = :environmentId")
+    fun observeByEnvironment(environmentId: String): Flow<List<ChallengeEntity>>
 
     @Query("SELECT * FROM challenges WHERE id = :id")
     suspend fun getById(id: String): ChallengeEntity?
@@ -141,13 +154,25 @@ interface ChallengeDao {
 }
 
 @Dao
-interface BadgeDao {
+interface LabCollectibleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(badges: List<BadgeEntity>)
+    suspend fun insertAll(collectibles: List<LabCollectibleEntity>)
 
-    @Query("SELECT * FROM badges")
-    fun observeAll(): Flow<List<BadgeEntity>>
+    @Query("SELECT * FROM lab_collectibles")
+    fun observeAll(): Flow<List<LabCollectibleEntity>>
 
-    @Query("SELECT COUNT(*) FROM badges")
+    @Query("SELECT COUNT(*) FROM lab_collectibles")
+    suspend fun count(): Int
+}
+
+@Dao
+interface LaboratoryUpgradeDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(upgrades: List<LaboratoryUpgradeEntity>)
+
+    @Query("SELECT * FROM laboratory_upgrades")
+    fun observeAll(): Flow<List<LaboratoryUpgradeEntity>>
+
+    @Query("SELECT COUNT(*) FROM laboratory_upgrades")
     suspend fun count(): Int
 }

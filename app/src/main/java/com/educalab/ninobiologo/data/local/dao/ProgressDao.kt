@@ -5,78 +5,80 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.educalab.ninobiologo.data.local.entity.BadgeUnlockEntity
-import com.educalab.ninobiologo.data.local.entity.BiologistProfileEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeAttemptEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemBuildEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionProgressEntity
-import com.educalab.ninobiologo.data.local.entity.JournalEntryEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismDiscoveryEntity
+import com.educalab.ninobiologo.data.local.entity.CollectibleUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.CreatureCollectionEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryFoundEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryJournalEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentResultEntity
+import com.educalab.ninobiologo.data.local.entity.ExplorerProfileEntity
+import com.educalab.ninobiologo.data.local.entity.LabUpgradeUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.SampleExplorationEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ProfileDao {
+interface ExplorerProfileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(profile: BiologistProfileEntity)
+    suspend fun insert(profile: ExplorerProfileEntity)
 
     @Update
-    suspend fun update(profile: BiologistProfileEntity)
+    suspend fun update(profile: ExplorerProfileEntity)
 
-    @Query("SELECT * FROM biologist_profile WHERE id = 1")
-    fun observe(): Flow<BiologistProfileEntity?>
+    @Query("SELECT * FROM explorer_profile WHERE id = 1")
+    fun observe(): Flow<ExplorerProfileEntity?>
 
-    @Query("SELECT * FROM biologist_profile WHERE id = 1")
-    suspend fun get(): BiologistProfileEntity?
+    @Query("SELECT * FROM explorer_profile WHERE id = 1")
+    suspend fun get(): ExplorerProfileEntity?
 
-    @Query("UPDATE biologist_profile SET totalXp = totalXp + :delta WHERE id = 1")
+    @Query("UPDATE explorer_profile SET totalXp = totalXp + :delta WHERE id = 1")
     suspend fun addXp(delta: Int)
 
-    @Query("UPDATE biologist_profile SET soundEnabled = :enabled WHERE id = 1")
+    @Query("UPDATE explorer_profile SET soundEnabled = :enabled WHERE id = 1")
     suspend fun setSoundEnabled(enabled: Boolean)
 
-    @Query("UPDATE biologist_profile SET hapticsEnabled = :enabled WHERE id = 1")
+    @Query("UPDATE explorer_profile SET hapticsEnabled = :enabled WHERE id = 1")
     suspend fun setHapticsEnabled(enabled: Boolean)
 
-    @Query("UPDATE biologist_profile SET onboardingCompleted = 1 WHERE id = 1")
+    @Query("UPDATE explorer_profile SET onboardingCompleted = 1 WHERE id = 1")
     suspend fun markOnboardingCompleted()
 }
 
 @Dao
-interface DiscoveryDao {
-    @Query("DELETE FROM organism_discoveries")
+interface DiscoveryFoundDao {
+    @Query("DELETE FROM discoveries_found")
     suspend fun clearAll()
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(discovery: OrganismDiscoveryEntity): Long
+    suspend fun insert(discovery: DiscoveryFoundEntity): Long
 
-    @Query("SELECT * FROM organism_discoveries")
-    fun observeAll(): Flow<List<OrganismDiscoveryEntity>>
+    @Query("SELECT * FROM discoveries_found")
+    fun observeAll(): Flow<List<DiscoveryFoundEntity>>
 
-    @Query("SELECT organismId FROM organism_discoveries")
+    @Query("SELECT discoveryId FROM discoveries_found")
     suspend fun getDiscoveredIds(): List<String>
 
-    @Query("SELECT COUNT(*) FROM organism_discoveries")
+    @Query("SELECT COUNT(*) FROM discoveries_found")
     fun observeCount(): Flow<Int>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM organism_discoveries WHERE organismId = :organismId)")
-    suspend fun isDiscovered(organismId: String): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM discoveries_found WHERE discoveryId = :discoveryId)")
+    suspend fun isDiscovered(discoveryId: String): Boolean
 }
 
 @Dao
-interface ExpeditionProgressDao {
-    @Query("DELETE FROM expedition_progress")
+interface SampleExplorationDao {
+    @Query("DELETE FROM sample_exploration")
     suspend fun clearAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(progress: ExpeditionProgressEntity)
+    suspend fun upsert(progress: SampleExplorationEntity)
 
-    @Query("SELECT * FROM expedition_progress")
-    fun observeAll(): Flow<List<ExpeditionProgressEntity>>
+    @Query("SELECT * FROM sample_exploration")
+    fun observeAll(): Flow<List<SampleExplorationEntity>>
 
-    @Query("SELECT * FROM expedition_progress WHERE expeditionId = :expeditionId")
-    suspend fun getById(expeditionId: String): ExpeditionProgressEntity?
+    @Query("SELECT * FROM sample_exploration WHERE sampleId = :sampleId")
+    suspend fun getById(sampleId: String): SampleExplorationEntity?
 
-    @Query("SELECT COUNT(*) FROM expedition_progress WHERE state = 'COMPLETADO' OR state = 'DOMINADO'")
+    @Query("SELECT COUNT(*) FROM sample_exploration WHERE state = 'DESCUBIERTO'")
     suspend fun completedCount(): Int
 }
 
@@ -102,46 +104,79 @@ interface ChallengeAttemptDao {
 }
 
 @Dao
-interface BadgeUnlockDao {
-    @Query("DELETE FROM badge_unlocks")
+interface CollectibleUnlockDao {
+    @Query("DELETE FROM collectible_unlocks")
     suspend fun clearAll()
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(unlock: BadgeUnlockEntity): Long
+    suspend fun insert(unlock: CollectibleUnlockEntity): Long
 
-    @Query("SELECT * FROM badge_unlocks")
-    fun observeAll(): Flow<List<BadgeUnlockEntity>>
+    @Query("SELECT * FROM collectible_unlocks")
+    fun observeAll(): Flow<List<CollectibleUnlockEntity>>
 
-    @Query("SELECT badgeId FROM badge_unlocks")
+    @Query("SELECT collectibleId FROM collectible_unlocks")
     suspend fun getUnlockedIds(): List<String>
 
-    @Query("SELECT COUNT(*) FROM badge_unlocks")
+    @Query("SELECT COUNT(*) FROM collectible_unlocks")
     suspend fun count(): Int
 }
 
 @Dao
-interface EcosystemBuildDao {
-    @Query("DELETE FROM ecosystem_builds")
+interface LabUpgradeUnlockDao {
+    @Query("DELETE FROM lab_upgrade_unlocks")
     suspend fun clearAll()
 
-    @Insert
-    suspend fun insert(build: EcosystemBuildEntity): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(unlock: LabUpgradeUnlockEntity): Long
 
-    @Query("SELECT * FROM ecosystem_builds WHERE templateId = :templateId ORDER BY savedAtEpochMillis DESC")
-    fun observeForTemplate(templateId: String): Flow<List<EcosystemBuildEntity>>
+    @Query("SELECT * FROM lab_upgrade_unlocks")
+    fun observeAll(): Flow<List<LabUpgradeUnlockEntity>>
 
-    @Query("SELECT COUNT(*) FROM ecosystem_builds WHERE status = 'ESTABLE' OR status = 'FLORECIENTE'")
-    suspend fun stableCount(): Int
+    @Query("SELECT upgradeId FROM lab_upgrade_unlocks")
+    suspend fun getUnlockedIds(): List<String>
+
+    @Query("SELECT COUNT(*) FROM lab_upgrade_unlocks")
+    suspend fun count(): Int
 }
 
 @Dao
-interface JournalDao {
-    @Insert
-    suspend fun insert(entry: JournalEntryEntity): Long
+interface CreatureCollectionDao {
+    @Query("DELETE FROM creature_collection")
+    suspend fun clearAll()
 
-    @Query("DELETE FROM journal_entries WHERE id = :id")
+    @Insert
+    suspend fun insert(creature: CreatureCollectionEntity): Long
+
+    @Query("SELECT * FROM creature_collection ORDER BY createdAtEpochMillis DESC")
+    fun observeAll(): Flow<List<CreatureCollectionEntity>>
+
+    @Query("SELECT COUNT(*) FROM creature_collection")
+    suspend fun count(): Int
+}
+
+@Dao
+interface ExperimentResultDao {
+    @Query("DELETE FROM experiment_results")
+    suspend fun clearAll()
+
+    @Insert
+    suspend fun insert(result: ExperimentResultEntity): Long
+
+    @Query("SELECT * FROM experiment_results WHERE experimentId = :experimentId ORDER BY savedAtEpochMillis DESC")
+    fun observeForExperiment(experimentId: String): Flow<List<ExperimentResultEntity>>
+
+    @Query("SELECT COUNT(*) FROM experiment_results")
+    suspend fun count(): Int
+}
+
+@Dao
+interface DiscoveryJournalDao {
+    @Insert
+    suspend fun insert(entry: DiscoveryJournalEntity): Long
+
+    @Query("DELETE FROM discovery_journal WHERE id = :id")
     suspend fun delete(id: Long)
 
-    @Query("SELECT * FROM journal_entries ORDER BY createdAtEpochMillis DESC")
-    fun observeAll(): Flow<List<JournalEntryEntity>>
+    @Query("SELECT * FROM discovery_journal ORDER BY createdAtEpochMillis DESC")
+    fun observeAll(): Flow<List<DiscoveryJournalEntity>>
 }

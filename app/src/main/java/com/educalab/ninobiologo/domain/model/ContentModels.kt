@@ -1,7 +1,7 @@
 package com.educalab.ninobiologo.domain.model
 
-/** Una de las 5 regiones del Mapa de Expediciones Biológicas. */
-data class Biome(
+/** Uno de los 5 ambientes microscópicos del Laboratorio Vivo. */
+data class MicroscopicEnvironment(
     val id: String,
     val order: Int,
     val name: String,
@@ -12,39 +12,30 @@ data class Biome(
     val secondaryColorHex: String
 )
 
-data class ExpeditionStep(
-    val order: Int,
-    val prompt: String,
-    val type: MissionType,
-    val hint: String
-)
-
-data class Expedition(
+/** Una muestra encontrada en un ambiente (p.ej. "Muestra de la corteza de un roble"). */
+data class ScientificSample(
     val id: String,
-    val biomeId: String,
+    val environmentId: String,
     val order: Int,
-    val title: String,
-    val narrative: String,
-    val missionType: MissionType,
+    val name: String,
+    val origin: String,
     val difficulty: Int, // 1..3
-    val relatedOrganismIds: List<String>,
-    val steps: List<ExpeditionStep>,
-    val rewardXp: Int,
-    val requiredRank: BiologistRank
+    val iconKey: String
 )
 
-data class Organism(
+/** Lo que el microscopio revela dentro de una muestra: el hallazgo real (antes "Organism"). */
+data class MicroscopeDiscovery(
     val id: String,
-    val biomeId: String,
+    val sampleId: String,
+    val environmentId: String,
     val name: String,
     val scientificName: String,
-    val category: OrganismCategory,
+    val category: DiscoveryCategory,
     val habitat: String,
     val diet: String,
-    val trophicRole: TrophicRole,
     val characteristics: List<String>,
-    val funFact: String,
-    val rarity: OrganismRarity,
+    val curiosity: String,
+    val rarity: DiscoveryRarity,
     val iconKey: String
 )
 
@@ -77,35 +68,60 @@ data class BodySystem(
     val organs: List<BodyOrgan>
 )
 
-/** Plantilla base de un ecosistema para el Constructor de Ecosistemas. */
-data class EcosystemTemplate(
+/** Un experimento biológico: variable ajustable y su rango ideal (Experimentos Biológicos). */
+data class Experiment(
     val id: String,
-    val biomeId: String,
-    val name: String,
+    val environmentId: String,
+    val order: Int,
+    val question: String,
     val description: String,
-    val availableOrganismIds: List<String>,
-    val idealProducers: Int,
-    val idealHerbivores: Int,
-    val idealCarnivores: Int,
-    val idealDecomposers: Int
+    val variableName: String,
+    val variableUnit: String,
+    val variableMin: Int,
+    val variableMax: Int,
+    val idealMin: Int,
+    val idealMax: Int,
+    val rewardXp: Int
 )
 
-data class Badge(
+/** Una pieza disponible en el Constructor Biológico (creación de criaturas). */
+data class CreaturePartOption(
+    val id: String,
+    val category: CreaturePartCategory,
+    val name: String,
+    val description: String,
+    val bestEnvironmentId: String
+)
+
+/** Tarea del Analizador: comparar/clasificar descubrimientos (antes "Challenge"). */
+data class Challenge(
+    val id: String,
+    val environmentId: String,
+    val type: AnalysisTaskType,
+    val title: String,
+    val instructions: String,
+    val relatedDiscoveryIds: List<String>,
+    val rewardXp: Int
+)
+
+/** Elemento coleccionable de "Mi Museo de la Vida" (antes "Badge"). */
+data class LabCollectible(
     val id: String,
     val name: String,
     val description: String,
     val iconKey: String,
-    val criteriaType: BadgeCriteriaType,
+    val criteriaType: UnlockCriteriaType,
     val criteriaValue: Int,
-    val biomeId: String? = null
+    val environmentId: String? = null
 )
 
-data class Challenge(
+/** Mejora desbloqueable del laboratorio (nuevas herramientas, zonas, decoración). */
+data class LaboratoryUpgrade(
     val id: String,
-    val biomeId: String,
-    val type: ChallengeType,
-    val title: String,
-    val instructions: String,
-    val relatedOrganismIds: List<String>,
-    val rewardXp: Int
+    val name: String,
+    val description: String,
+    val iconKey: String,
+    val criteriaType: UnlockCriteriaType,
+    val criteriaValue: Int,
+    val environmentId: String? = null
 )

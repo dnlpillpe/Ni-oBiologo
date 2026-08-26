@@ -1,48 +1,55 @@
 package com.educalab.ninobiologo.domain.logic
 
-import com.educalab.ninobiologo.domain.model.Badge
-import com.educalab.ninobiologo.domain.model.BadgeCriteriaType
-import com.educalab.ninobiologo.domain.model.Organism
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
+import com.educalab.ninobiologo.domain.model.UnlockCriteriaType
 
 /**
- * Reglas del Museo Biológico Personal: qué porcentaje de una zona está completo y qué insignias
- * corresponde desbloquear dado el estado real acumulado (nunca se "muestran bloqueadas" sin
- * más: se calculan de verdad, sección 43 de la especificación V3).
+ * Reglas de "Mi Museo de la Vida": qué porcentaje de un ambiente está completo y qué
+ * coleccionables/mejoras de laboratorio corresponde desbloquear dado el estado real acumulado
+ * (nunca se "muestran bloqueados" sin más: se calculan de verdad).
  */
 object CollectionEngine {
 
-    fun biomeCompletionPercent(allBiomeOrganisms: List<Organism>, discoveredIds: Set<String>): Int {
-        if (allBiomeOrganisms.isEmpty()) return 0
-        val discoveredInBiome = allBiomeOrganisms.count { it.id in discoveredIds }
-        return ((discoveredInBiome.toFloat() / allBiomeOrganisms.size.toFloat()) * 100f).toInt().coerceIn(0, 100)
+    fun environmentCompletionPercent(allEnvironmentDiscoveries: List<MicroscopeDiscovery>, discoveredIds: Set<String>): Int {
+        if (allEnvironmentDiscoveries.isEmpty()) return 0
+        val discoveredInEnvironment = allEnvironmentDiscoveries.count { it.id in discoveredIds }
+        return ((discoveredInEnvironment.toFloat() / allEnvironmentDiscoveries.size.toFloat()) * 100f).toInt().coerceIn(0, 100)
     }
 
     data class ProgressStats(
         val discoveriesCount: Int,
-        val expeditionsCompleted: Int,
-        val stableEcosystemsCount: Int,
-        val challengesPassed: Int,
-        val biomeCompletionPercents: Map<String, Int>,
+        val experimentsRun: Int,
+        val creaturesCreated: Int,
+        val analysisPassed: Int,
+        val environmentCompletionPercents: Map<String, Int>,
         val legendaryDiscovered: Boolean
     )
 
-    /** Devuelve las insignias cuya condición ya se cumple pero que aún no estaban desbloqueadas. */
-    fun newlyUnlockedBadges(allBadges: List<Badge>, alreadyUnlockedIds: Set<String>, stats: ProgressStats): List<Badge> {
-        return allBadges.filter { badge ->
-            if (badge.id in alreadyUnlockedIds) return@filter false
-            meetsCriteria(badge, stats)
-        }
+    /** Forma mínima común entre LabCollectible y LaboratoryUpgrade para evaluar su desbloqueo. */
+    data class UnlockableCriteria(val criteriaType: UnlockCriteriaType, val criteriaValue: Int, val environmentId: String?)
+
+    /** Devuelve los elementos cuya condición ya se cumple pero que aún no estaban desbloqueados. */
+    fun <T> newlyUnlocked(
+        items: List<T>,
+        idOf: (T) -> String,
+        criteriaOf: (T) -> UnlockableCriteria,
+        alreadyUnlockedIds: Set<String>,
+        stats: ProgressStats
+    ): List<T> = items.filter { item ->
+        val id = idOf(item)
+        if (id in alreadyUnlockedIds) return@filter false
+        meetsCriteria(criteriaOf(item), stats)
     }
 
-    private fun meetsCriteria(badge: Badge, stats: ProgressStats): Boolean = when (badge.criteriaType) {
-        BadgeCriteriaType.DESCUBRIMIENTOS_TOTALES -> stats.discoveriesCount >= badge.criteriaValue
-        BadgeCriteriaType.EXPEDICIONES_COMPLETADAS -> stats.expeditionsCompleted >= badge.criteriaValue
-        BadgeCriteriaType.ECOSISTEMAS_ESTABLES -> stats.stableEcosystemsCount >= badge.criteriaValue
-        BadgeCriteriaType.DESAFIOS_SUPERADOS -> stats.challengesPassed >= badge.criteriaValue
-        BadgeCriteriaType.ZONA_COMPLETA -> {
-            val pct = badge.biomeId?.let { stats.biomeCompletionPercents[it] } ?: 0
-            pct >= badge.criteriaValue
+    private fun meetsCriteria(criteria: UnlockableCriteria, stats: ProgressStats): Boolean = when (criteria.criteriaType) {
+        UnlockCriteriaType.DESCUBRIMIENTOS_TOTALES -> stats.discoveriesCount >= criteria.criteriaValue
+        UnlockCriteriaType.EXPERIMENTOS_REALIZADOS -> stats.experimentsRun >= criteria.criteriaValue
+        UnlockCriteriaType.CRIATURAS_CREADAS -> stats.creaturesCreated >= criteria.criteriaValue
+        UnlockCriteriaType.ANALISIS_SUPERADOS -> stats.analysisPassed >= criteria.criteriaValue
+        UnlockCriteriaType.AMBIENTE_COMPLETO -> {
+            val pct = criteria.environmentId?.let { stats.environmentCompletionPercents[it] } ?: 0
+            pct >= criteria.criteriaValue
         }
-        BadgeCriteriaType.RAREZA_LEGENDARIA -> stats.legendaryDiscovered
+        UnlockCriteriaType.RAREZA_LEGENDARIA -> stats.legendaryDiscovered
     }
 }

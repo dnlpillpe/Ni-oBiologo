@@ -1,20 +1,20 @@
 package com.educalab.ninobiologo.domain.logic
 
-import com.educalab.ninobiologo.domain.model.Organism
-import com.educalab.ninobiologo.domain.model.OrganismCategory
+import com.educalab.ninobiologo.domain.model.DiscoveryCategory
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
 
 /**
- * Motor del Clasificador de Vida (mecánica "clasificar/relacionar", no un cuestionario de opción
- * múltiple: el niño arrastra cada organismo hasta la categoría/hábitat que le corresponde).
+ * Motor del Analizador (herramienta de apoyo para comparar/clasificar descubrimientos; no es un
+ * cuestionario de opción múltiple aislado, se usa dentro de la exploración de una muestra).
  */
 object ClassifierEngine {
 
     enum class ClassifierAxis { CATEGORIA, HABITAT, DIETA }
 
-    data class Attempt(val organismId: String, val chosenValue: String)
+    data class Attempt(val discoveryId: String, val chosenValue: String)
 
     data class AttemptResult(
-        val organismId: String,
+        val discoveryId: String,
         val correct: Boolean,
         val expectedValue: String,
         val explanation: String
@@ -28,42 +28,42 @@ object ClassifierEngine {
         val accuracy: Float get() = if (totalCount == 0) 0f else correctCount.toFloat() / totalCount.toFloat()
     }
 
-    fun expectedValue(organism: Organism, axis: ClassifierAxis): String = when (axis) {
-        ClassifierAxis.CATEGORIA -> organism.category.name
-        ClassifierAxis.HABITAT -> organism.habitat
-        ClassifierAxis.DIETA -> organism.diet
+    fun expectedValue(discovery: MicroscopeDiscovery, axis: ClassifierAxis): String = when (axis) {
+        ClassifierAxis.CATEGORIA -> discovery.category.name
+        ClassifierAxis.HABITAT -> discovery.habitat
+        ClassifierAxis.DIETA -> discovery.diet
     }
 
-    fun evaluate(organisms: List<Organism>, attempts: List<Attempt>, axis: ClassifierAxis): SessionResult {
-        val byId = organisms.associateBy { it.id }
+    fun evaluate(discoveries: List<MicroscopeDiscovery>, attempts: List<Attempt>, axis: ClassifierAxis): SessionResult {
+        val byId = discoveries.associateBy { it.id }
         val results = attempts.map { attempt ->
-            val organism = byId[attempt.organismId]
-            if (organism == null) {
-                AttemptResult(attempt.organismId, false, "desconocido", "Este organismo no está disponible en esta ronda.")
+            val discovery = byId[attempt.discoveryId]
+            if (discovery == null) {
+                AttemptResult(attempt.discoveryId, false, "desconocido", "Este descubrimiento no está disponible en esta ronda.")
             } else {
-                val expected = expectedValue(organism, axis)
+                val expected = expectedValue(discovery, axis)
                 val correct = expected.equals(attempt.chosenValue, ignoreCase = true)
                 val explanation = if (correct) {
-                    "¡Correcto! ${organism.name} ${explanationFor(organism, axis)}"
+                    "¡Correcto! ${discovery.name} ${explanationFor(discovery, axis)}"
                 } else {
-                    "${organism.name} en realidad ${explanationFor(organism, axis)}"
+                    "${discovery.name} en realidad ${explanationFor(discovery, axis)}"
                 }
-                AttemptResult(attempt.organismId, correct, expected, explanation)
+                AttemptResult(attempt.discoveryId, correct, expected, explanation)
             }
         }
         return SessionResult(results, results.count { it.correct }, results.size)
     }
 
-    private fun explanationFor(organism: Organism, axis: ClassifierAxis): String = when (axis) {
-        ClassifierAxis.CATEGORIA -> "es un/a ${categoryLabel(organism.category)}."
-        ClassifierAxis.HABITAT -> "vive en ${organism.habitat}."
-        ClassifierAxis.DIETA -> "se alimenta de ${organism.diet}."
+    private fun explanationFor(discovery: MicroscopeDiscovery, axis: ClassifierAxis): String = when (axis) {
+        ClassifierAxis.CATEGORIA -> "es un/a ${categoryLabel(discovery.category)}."
+        ClassifierAxis.HABITAT -> "vive en ${discovery.habitat}."
+        ClassifierAxis.DIETA -> "se alimenta de ${discovery.diet}."
     }
 
-    private fun categoryLabel(category: OrganismCategory): String = when (category) {
-        OrganismCategory.PLANTA -> "planta"
-        OrganismCategory.ANIMAL -> "animal"
-        OrganismCategory.MICROORGANISMO -> "microorganismo"
-        OrganismCategory.HONGO -> "hongo"
+    private fun categoryLabel(category: DiscoveryCategory): String = when (category) {
+        DiscoveryCategory.PLANTA -> "planta"
+        DiscoveryCategory.ANIMAL -> "animal"
+        DiscoveryCategory.MICROORGANISMO -> "microorganismo"
+        DiscoveryCategory.HONGO -> "hongo"
     }
 }

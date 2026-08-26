@@ -1,6 +1,6 @@
 package com.educalab.ninobiologo.domain.model
 
-data class BiologistProfile(
+data class ExplorerProfile(
     val id: Long = 1L,
     val alias: String,
     val avatarKey: String,
@@ -13,19 +13,18 @@ data class BiologistProfile(
     val rank: BiologistRank get() = BiologistRank.fromXp(totalXp)
 }
 
-data class OrganismDiscovery(
-    val organismId: String,
+data class DiscoveryFound(
+    val discoveryId: String,
     val discoveredAtEpochMillis: Long,
-    val viaExpeditionId: String?
+    val viaSampleId: String?
 )
 
-data class ExpeditionProgress(
-    val expeditionId: String,
-    val state: ModuleState,
-    val stepsCompleted: Int,
-    val totalSteps: Int,
-    val bestStars: Int, // 0..3
-    val timesCompleted: Int,
+/** Progreso de exploración de una muestra: Explorar -> Observar -> Experimentar -> Descubrir. */
+data class SampleExploration(
+    val sampleId: String,
+    val state: SampleExplorationState,
+    val discoveriesFound: Int,
+    val totalDiscoveries: Int,
     val lastAttemptEpochMillis: Long?
 )
 
@@ -39,37 +38,53 @@ data class ChallengeAttempt(
     val attemptedAtEpochMillis: Long
 )
 
-data class BadgeUnlock(
-    val badgeId: String,
+data class CollectibleUnlock(
+    val collectibleId: String,
     val unlockedAtEpochMillis: Long
 )
 
-/** Resultado de una sesión guardada del Constructor de Ecosistemas. */
-data class EcosystemBuild(
+data class LabUpgradeUnlock(
+    val upgradeId: String,
+    val unlockedAtEpochMillis: Long
+)
+
+/** Una criatura microscópica creada por el niño en el Constructor Biológico. */
+data class CreatureCollection(
     val id: Long,
-    val templateId: String,
-    val producers: Int,
-    val herbivores: Int,
-    val carnivores: Int,
-    val decomposers: Int,
-    val balanceScore: Int,
-    val status: EcosystemStatus,
+    val name: String,
+    val formaId: String,
+    val movimientoId: String,
+    val alimentacionId: String,
+    val adaptacionId: String,
+    val targetEnvironmentId: String,
+    val fitScore: Int,
+    val createdAtEpochMillis: Long
+)
+
+/** Resultado guardado de un Experimento Biológico. */
+data class ExperimentResult(
+    val id: Long,
+    val experimentId: String,
+    val variableValue: Int,
+    val outcome: ExperimentOutcome,
+    val message: String,
+    val xpAwarded: Int,
     val savedAtEpochMillis: Long
 )
 
-data class JournalEntry(
+data class DiscoveryJournalEntry(
     val id: Long,
     val type: JournalEntryType,
     val title: String,
     val note: String,
     val filePath: String?,
-    val relatedBiomeId: String?,
+    val relatedEnvironmentId: String?,
     val createdAtEpochMillis: Long
 )
 
-/** Item mostrado en el Museo Biológico Personal: combina Organism + su descubrimiento. */
-data class CollectionItem(
-    val organism: Organism,
+/** Item mostrado en "Mi Museo de la Vida": combina MicroscopeDiscovery + su hallazgo. */
+data class MuseumItem(
+    val discovery: MicroscopeDiscovery,
     val discoveredAtEpochMillis: Long,
-    val viaExpeditionId: String?
+    val viaSampleId: String?
 )

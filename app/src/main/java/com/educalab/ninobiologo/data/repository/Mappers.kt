@@ -1,52 +1,53 @@
 package com.educalab.ninobiologo.data.repository
 
-import com.educalab.ninobiologo.data.local.entity.BadgeEntity
-import com.educalab.ninobiologo.data.local.entity.BadgeUnlockEntity
-import com.educalab.ninobiologo.data.local.entity.BiologistProfileEntity
-import com.educalab.ninobiologo.data.local.entity.BiomeEntity
 import com.educalab.ninobiologo.data.local.entity.BodyOrganEntity
 import com.educalab.ninobiologo.data.local.entity.BodySystemEntity
 import com.educalab.ninobiologo.data.local.entity.CellModelEntity
 import com.educalab.ninobiologo.data.local.entity.CellStructureEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeAttemptEntity
 import com.educalab.ninobiologo.data.local.entity.ChallengeEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemBuildEntity
-import com.educalab.ninobiologo.data.local.entity.EcosystemTemplateEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionProgressEntity
-import com.educalab.ninobiologo.data.local.entity.ExpeditionStepEntity
-import com.educalab.ninobiologo.data.local.entity.JournalEntryEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismDiscoveryEntity
-import com.educalab.ninobiologo.data.local.entity.OrganismEntity
-import com.educalab.ninobiologo.domain.model.Badge
-import com.educalab.ninobiologo.domain.model.BadgeUnlock
-import com.educalab.ninobiologo.domain.model.Biome
-import com.educalab.ninobiologo.domain.model.BiologistProfile
+import com.educalab.ninobiologo.data.local.entity.CollectibleUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.CreatureCollectionEntity
+import com.educalab.ninobiologo.data.local.entity.CreaturePartOptionEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryFoundEntity
+import com.educalab.ninobiologo.data.local.entity.DiscoveryJournalEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentEntity
+import com.educalab.ninobiologo.data.local.entity.ExperimentResultEntity
+import com.educalab.ninobiologo.data.local.entity.ExplorerProfileEntity
+import com.educalab.ninobiologo.data.local.entity.LabCollectibleEntity
+import com.educalab.ninobiologo.data.local.entity.LabUpgradeUnlockEntity
+import com.educalab.ninobiologo.data.local.entity.LaboratoryUpgradeEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopeDiscoveryEntity
+import com.educalab.ninobiologo.data.local.entity.MicroscopicEnvironmentEntity
+import com.educalab.ninobiologo.data.local.entity.SampleExplorationEntity
+import com.educalab.ninobiologo.data.local.entity.ScientificSampleEntity
 import com.educalab.ninobiologo.domain.model.BodyOrgan
 import com.educalab.ninobiologo.domain.model.BodySystem
 import com.educalab.ninobiologo.domain.model.CellModel
 import com.educalab.ninobiologo.domain.model.CellStructure
 import com.educalab.ninobiologo.domain.model.Challenge
 import com.educalab.ninobiologo.domain.model.ChallengeAttempt
-import com.educalab.ninobiologo.domain.model.EcosystemBuild
-import com.educalab.ninobiologo.domain.model.EcosystemTemplate
-import com.educalab.ninobiologo.domain.model.Expedition
-import com.educalab.ninobiologo.domain.model.ExpeditionProgress
-import com.educalab.ninobiologo.domain.model.ExpeditionStep
-import com.educalab.ninobiologo.domain.model.JournalEntry
-import com.educalab.ninobiologo.domain.model.Organism
-import com.educalab.ninobiologo.domain.model.OrganismDiscovery
+import com.educalab.ninobiologo.domain.model.CollectibleUnlock
+import com.educalab.ninobiologo.domain.model.CreatureCollection
+import com.educalab.ninobiologo.domain.model.CreaturePartOption
+import com.educalab.ninobiologo.domain.model.DiscoveryFound
+import com.educalab.ninobiologo.domain.model.DiscoveryJournalEntry
+import com.educalab.ninobiologo.domain.model.Experiment
+import com.educalab.ninobiologo.domain.model.ExperimentResult
+import com.educalab.ninobiologo.domain.model.ExplorerProfile
+import com.educalab.ninobiologo.domain.model.LabCollectible
+import com.educalab.ninobiologo.domain.model.LabUpgradeUnlock
+import com.educalab.ninobiologo.domain.model.LaboratoryUpgrade
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
+import com.educalab.ninobiologo.domain.model.MicroscopicEnvironment
+import com.educalab.ninobiologo.domain.model.SampleExploration
+import com.educalab.ninobiologo.domain.model.ScientificSample
 
-fun BiomeEntity.toDomain() = Biome(id, orderIndex, name, tagline, description, iconKey, primaryColorHex, secondaryColorHex)
+fun MicroscopicEnvironmentEntity.toDomain() = MicroscopicEnvironment(id, orderIndex, name, tagline, description, iconKey, primaryColorHex, secondaryColorHex)
 
-fun OrganismEntity.toDomain() = Organism(id, biomeId, name, scientificName, category, habitat, diet, trophicRole, characteristics, funFact, rarity, iconKey)
+fun ScientificSampleEntity.toDomain() = ScientificSample(id, environmentId, orderIndex, name, origin, difficulty, iconKey)
 
-fun ExpeditionEntity.toDomain(steps: List<ExpeditionStepEntity>) = Expedition(
-    id, biomeId, orderIndex, title, narrative, missionType, difficulty, relatedOrganismIds,
-    steps.sortedBy { it.orderIndex }.map { it.toDomain() }, rewardXp, requiredRank
-)
-
-fun ExpeditionStepEntity.toDomain() = ExpeditionStep(orderIndex, prompt, type, hint)
+fun MicroscopeDiscoveryEntity.toDomain() = MicroscopeDiscovery(id, sampleId, environmentId, name, scientificName, category, habitat, diet, characteristics, curiosity, rarity, iconKey)
 
 fun CellModelEntity.toDomain(structures: List<CellStructureEntity>) =
     CellModel(id, name, cellType, description, structures.map { it.toDomain() })
@@ -58,22 +59,30 @@ fun BodySystemEntity.toDomain(organs: List<BodyOrganEntity>) =
 
 fun BodyOrganEntity.toDomain() = BodyOrgan(id, name, function)
 
-fun EcosystemTemplateEntity.toDomain() = EcosystemTemplate(id, biomeId, name, description, availableOrganismIds, idealProducers, idealHerbivores, idealCarnivores, idealDecomposers)
+fun ExperimentEntity.toDomain() = Experiment(id, environmentId, orderIndex, question, description, variableName, variableUnit, variableMin, variableMax, idealMin, idealMax, rewardXp)
 
-fun BadgeEntity.toDomain() = Badge(id, name, description, iconKey, criteriaType, criteriaValue, biomeId)
+fun CreaturePartOptionEntity.toDomain() = CreaturePartOption(id, category, name, description, bestEnvironmentId)
 
-fun ChallengeEntity.toDomain() = Challenge(id, biomeId, type, title, instructions, relatedOrganismIds, rewardXp)
+fun LabCollectibleEntity.toDomain() = LabCollectible(id, name, description, iconKey, criteriaType, criteriaValue, environmentId)
 
-fun BiologistProfileEntity.toDomain() = BiologistProfile(id, alias, avatarKey, totalXp, onboardingCompleted, soundEnabled, hapticsEnabled, createdAtEpochMillis)
+fun LaboratoryUpgradeEntity.toDomain() = LaboratoryUpgrade(id, name, description, iconKey, criteriaType, criteriaValue, environmentId)
 
-fun OrganismDiscoveryEntity.toDomain() = OrganismDiscovery(organismId, discoveredAtEpochMillis, viaExpeditionId)
+fun ChallengeEntity.toDomain() = Challenge(id, environmentId, type, title, instructions, relatedDiscoveryIds, rewardXp)
 
-fun ExpeditionProgressEntity.toDomain() = ExpeditionProgress(expeditionId, state, stepsCompleted, totalSteps, bestStars, timesCompleted, lastAttemptEpochMillis)
+fun ExplorerProfileEntity.toDomain() = ExplorerProfile(id, alias, avatarKey, totalXp, onboardingCompleted, soundEnabled, hapticsEnabled, createdAtEpochMillis)
+
+fun DiscoveryFoundEntity.toDomain() = DiscoveryFound(discoveryId, discoveredAtEpochMillis, viaSampleId)
+
+fun SampleExplorationEntity.toDomain() = SampleExploration(sampleId, state, discoveriesFound, totalDiscoveries, lastAttemptEpochMillis)
 
 fun ChallengeAttemptEntity.toDomain() = ChallengeAttempt(id, challengeId, correctCount, totalCount, stars, xpAwarded, attemptedAtEpochMillis)
 
-fun BadgeUnlockEntity.toDomain() = BadgeUnlock(badgeId, unlockedAtEpochMillis)
+fun CollectibleUnlockEntity.toDomain() = CollectibleUnlock(collectibleId, unlockedAtEpochMillis)
 
-fun EcosystemBuildEntity.toDomain() = EcosystemBuild(id, templateId, producers, herbivores, carnivores, decomposers, balanceScore, status, savedAtEpochMillis)
+fun LabUpgradeUnlockEntity.toDomain() = LabUpgradeUnlock(upgradeId, unlockedAtEpochMillis)
 
-fun JournalEntryEntity.toDomain() = JournalEntry(id, type, title, note, filePath, relatedBiomeId, createdAtEpochMillis)
+fun CreatureCollectionEntity.toDomain() = CreatureCollection(id, name, formaId, movimientoId, alimentacionId, adaptacionId, targetEnvironmentId, fitScore, createdAtEpochMillis)
+
+fun ExperimentResultEntity.toDomain() = ExperimentResult(id, experimentId, variableValue, outcome, message, xpAwarded, savedAtEpochMillis)
+
+fun DiscoveryJournalEntity.toDomain() = DiscoveryJournalEntry(id, type, title, note, filePath, relatedEnvironmentId, createdAtEpochMillis)

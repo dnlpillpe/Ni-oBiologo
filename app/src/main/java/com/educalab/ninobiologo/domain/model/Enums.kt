@@ -1,6 +1,6 @@
 package com.educalab.ninobiologo.domain.model
 
-/** Rango de progresión del joven biólogo. Definido en el prompt específico (sección PROGRESIÓN). */
+/** Rango de progresión del joven biólogo. Definido en el prompt maestro (no se modifica aquí). */
 enum class BiologistRank(val displayName: String, val minXp: Int) {
     EXPLORADOR_DE_VIDA("Explorador de Vida", 0),
     BIOLOGO_JUNIOR("Biólogo Junior", 250),
@@ -22,38 +22,35 @@ enum class BiologistRank(val displayName: String, val minXp: Int) {
     }
 }
 
-enum class OrganismCategory { PLANTA, ANIMAL, MICROORGANISMO, HONGO }
+enum class DiscoveryCategory { PLANTA, ANIMAL, MICROORGANISMO, HONGO }
 
-enum class OrganismRarity(val displayName: String, val xpValue: Int) {
+enum class DiscoveryRarity(val displayName: String, val xpValue: Int) {
     COMUN("Común", 10),
     POCO_COMUN("Poco común", 20),
     RARO("Raro", 35),
     LEGENDARIO("Legendario", 60)
 }
 
-/** Rol trófico usado por el Constructor de Ecosistemas y el validador de cadenas alimentarias. */
-enum class TrophicRole { PRODUCTOR, HERBIVORO, CARNIVORO, DESCOMPONEDOR }
+/** Estado de exploración de una muestra: Explorar -> Observar -> Experimentar -> Descubrir. */
+enum class SampleExplorationState { NUEVO, OBSERVANDO, ANALIZANDO, DESCUBIERTO }
 
-enum class MissionType { OBSERVAR, COMPARAR, INVESTIGAR, CONSTRUIR, CLASIFICAR, MICROSCOPIO }
+/** Tipo de tarea del Analizador (mecánica de comparar/clasificar, herramienta de apoyo). */
+enum class AnalysisTaskType { CLASIFICADOR, MEMORIA_BIOLOGICA }
 
-enum class ChallengeType { CLASIFICADOR, CONSTRUCTOR_ECOSISTEMA, CADENA_ALIMENTARIA, CONSTRUCTOR_CELULA, MEMORIA_BIOLOGICA }
+/** Resultado de un Experimento Biológico según qué tan lejos quedó la variable del rango ideal. */
+enum class ExperimentOutcome { SIN_CAMBIOS, EFECTO_LEVE, EFECTO_NOTABLE, EFECTO_DRASTICO }
 
-enum class EcosystemStatus(val displayName: String) {
-    COLAPSADO("Colapsado"),
-    INESTABLE("Inestable"),
-    ESTABLE("Estable"),
-    FLORECIENTE("Floreciente")
-}
+enum class JournalEntryType { TEXTO, FOTO, AUDIO, DESCUBRIMIENTO }
 
-enum class ModuleState { BLOQUEADO, DISPONIBLE, INICIADO, COMPLETADO, DOMINADO }
+/** Categoría de pieza del Constructor Biológico (creación de criaturas microscópicas). */
+enum class CreaturePartCategory { FORMA, MOVIMIENTO, ALIMENTACION, ADAPTACION }
 
-enum class JournalEntryType { TEXTO, FOTO, AUDIO }
-
-enum class BadgeCriteriaType {
+/** Criterio compartido por coleccionables del museo y mejoras del laboratorio. */
+enum class UnlockCriteriaType {
     DESCUBRIMIENTOS_TOTALES,
-    EXPEDICIONES_COMPLETADAS,
-    ECOSISTEMAS_ESTABLES,
-    DESAFIOS_SUPERADOS,
-    ZONA_COMPLETA,
+    EXPERIMENTOS_REALIZADOS,
+    CRIATURAS_CREADAS,
+    ANALISIS_SUPERADOS,
+    AMBIENTE_COMPLETO,
     RAREZA_LEGENDARIA
 }

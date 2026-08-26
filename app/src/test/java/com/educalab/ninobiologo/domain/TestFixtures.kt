@@ -1,33 +1,32 @@
 package com.educalab.ninobiologo.domain
 
-import com.educalab.ninobiologo.domain.model.Organism
-import com.educalab.ninobiologo.domain.model.OrganismCategory
-import com.educalab.ninobiologo.domain.model.OrganismRarity
-import com.educalab.ninobiologo.domain.model.TrophicRole
+import com.educalab.ninobiologo.domain.model.DiscoveryCategory
+import com.educalab.ninobiologo.domain.model.DiscoveryRarity
+import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
 
-/** Organismos de ejemplo reutilizados por varios tests de dominio. */
+/** Descubrimientos de ejemplo reutilizados por varios tests de dominio. */
 object TestFixtures {
-    val rana = Organism(
-        id = "org_rana", biomeId = "bosque_de_vida", name = "Rana arbórea", scientificName = "Hylidae",
-        category = OrganismCategory.ANIMAL, habitat = "Bosque húmedo", diet = "Insectos",
-        trophicRole = TrophicRole.CARNIVORO,
-        characteristics = listOf("piel húmeda", "salta"), funFact = "Respira por la piel.",
-        rarity = OrganismRarity.POCO_COMUN, iconKey = "rana"
+    val rana = MicroscopeDiscovery(
+        id = "disc_rana", sampleId = "sample_bosque_01", environmentId = "bosque_de_vida",
+        name = "Rana arbórea", scientificName = "Hylidae",
+        category = DiscoveryCategory.ANIMAL, habitat = "Bosque húmedo", diet = "Insectos",
+        characteristics = listOf("piel húmeda", "salta"), curiosity = "Respira por la piel.",
+        rarity = DiscoveryRarity.POCO_COMUN, iconKey = "rana"
     )
 
-    val helecho = Organism(
-        id = "org_helecho", biomeId = "bosque_de_vida", name = "Helecho gigante", scientificName = "Polypodiopsida",
-        category = OrganismCategory.PLANTA, habitat = "Bosque húmedo", diet = "Luz solar (fotosíntesis)",
-        trophicRole = TrophicRole.PRODUCTOR,
-        characteristics = listOf("hojas grandes", "esporas"), funFact = "Existen desde antes que los dinosaurios.",
-        rarity = OrganismRarity.COMUN, iconKey = "helecho"
+    val helecho = MicroscopeDiscovery(
+        id = "disc_helecho", sampleId = "sample_bosque_01", environmentId = "bosque_de_vida",
+        name = "Helecho gigante", scientificName = "Polypodiopsida",
+        category = DiscoveryCategory.PLANTA, habitat = "Bosque húmedo", diet = "Luz solar (fotosíntesis)",
+        characteristics = listOf("hojas grandes", "esporas"), curiosity = "Existen desde antes que los dinosaurios.",
+        rarity = DiscoveryRarity.COMUN, iconKey = "helecho"
     )
 
-    val ballena = Organism(
-        id = "org_ballena", biomeId = "oceano_profundo", name = "Ballena azul", scientificName = "Balaenoptera musculus",
-        category = OrganismCategory.ANIMAL, habitat = "Océano abierto", diet = "Kril",
-        trophicRole = TrophicRole.HERBIVORO,
-        characteristics = listOf("el animal más grande del planeta"), funFact = "Su corazón pesa como un auto pequeño.",
-        rarity = OrganismRarity.LEGENDARIO, iconKey = "ballena"
+    val ballena = MicroscopeDiscovery(
+        id = "disc_ballena", sampleId = "sample_oceano_04", environmentId = "oceano_profundo",
+        name = "Ballena azul", scientificName = "Balaenoptera musculus",
+        category = DiscoveryCategory.ANIMAL, habitat = "Océano abierto", diet = "Kril",
+        characteristics = listOf("el animal más grande del planeta"), curiosity = "Su corazón pesa como un auto pequeño.",
+        rarity = DiscoveryRarity.LEGENDARIO, iconKey = "ballena"
     )
 }
