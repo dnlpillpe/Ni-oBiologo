@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,6 +21,7 @@ import com.educalab.ninobiologo.domain.model.DiscoveryRarity
 import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.DiscoveryIllustration
+import com.educalab.ninobiologo.ui.components.DiscoverySilhouette
 import com.educalab.ninobiologo.ui.components.EmptyState
 import com.educalab.ninobiologo.ui.components.RarityChip
 import com.educalab.ninobiologo.ui.components.SectionHeader
@@ -65,7 +63,7 @@ private fun MuseumSlot(discovery: MicroscopeDiscovery, discovered: Boolean, onCl
                 Text(discovery.name, style = MaterialTheme.typography.labelMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 RarityChip(label = rarityLabel(discovery.rarity), color = rarityColor(discovery.rarity))
             } else {
-                Icon(Icons.Filled.Lock, contentDescription = "Sin descubrir", tint = Color.Gray, modifier = Modifier)
+                DiscoverySilhouette(category = discovery.category, iconKey = discovery.iconKey, sizeDp = 56)
                 Text("???", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
             }
         }

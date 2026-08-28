@@ -1,5 +1,6 @@
 package com.educalab.ninobiologo.ui.screens.sample
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -21,20 +21,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
-import com.educalab.ninobiologo.domain.model.SampleExplorationState
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.BiaExpression
 import com.educalab.ninobiologo.ui.components.BiaGuide
 import com.educalab.ninobiologo.ui.components.DiscoveryIllustration
+import com.educalab.ninobiologo.ui.components.HuntProgress
+import com.educalab.ninobiologo.ui.components.MicroHuntGame
 import com.educalab.ninobiologo.ui.components.PrimaryButton
-import com.educalab.ninobiologo.ui.components.XpBar
-import com.educalab.ninobiologo.ui.viewmodel.SAMPLE_EXPLORATION_STEPS
+import com.educalab.ninobiologo.ui.components.SampleIllustration
+import com.educalab.ninobiologo.ui.viewmodel.ExplorationPhase
 import com.educalab.ninobiologo.ui.viewmodel.SampleExplorationViewModel
 
-/** Mecánica principal de la app: Explorar -> Observar -> Experimentar -> Descubrir -> Coleccionar. */
+/**
+ * Mecánica principal: preparar la muestra -> cazar las criaturas en el microscopio -> coleccionar.
+ * El paso central es un mini-juego real, no un botón de "continuar".
+ */
 @Composable
 fun SampleExplorationScreen(sampleId: String, viewModel: SampleExplorationViewModel, onFinished: () -> Unit) {
     LaunchedEffect(sampleId) { viewModel.load(sampleId) }
@@ -45,35 +51,75 @@ fun SampleExplorationScreen(sampleId: String, viewModel: SampleExplorationViewMo
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp)) {
             if (sample == null || state.loading) return@Column
 
-            if (state.finished) {
-                DiscoverResultView(
-                    discoveries = state.discoveries,
-                    newlyUnlockedCount = state.newlyUnlockedCollectibles.size,
-                    onContinue = onFinished
-                )
-                return@Column
-            }
+            val envColor = state.environment?.primaryColorHex?.let { Color(android.graphics.Color.parseColor(it)) }
+                ?: MaterialTheme.colorScheme.primary
 
-            val step = SAMPLE_EXPLORATION_STEPS.getOrNull(state.stepIndex) ?: SampleExplorationState.NUEVO
-            Text(sample.name, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Text(sample.origin, style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(16.dp))
-            XpBar(progress = state.stepIndex.toFloat() / (SAMPLE_EXPLORATION_STEPS.size - 1).toFloat())
-            Spacer(Modifier.height(24.dp))
+            when (state.phase) {
+                ExplorationPhase.PREPARAR -> {
+                    Text(sample.name, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(4.dp))
+                    Text(sample.origin, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(24.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        SampleIllustration(iconKey = sample.iconKey, tint = envColor, sizeDp = 150)
+                    }
+                    Spacer(Modifier.height(24.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        BiaGuide(expression = BiaExpression.OBSERVANDO, sizeDp = 76)
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Puse tu muestra bajo el microscopio. Hay ${state.discoveries.size} seres vivos moviéndose ahí dentro… ¡atrápalos todos tocándolos!",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    PrimaryButton(text = "¡Mirar por el microscopio!", onClick = { viewModel.startHunt() }, modifier = Modifier.fillMaxWidth())
+                }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                BiaGuide(expression = expressionFor(step), sizeDp = 84)
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(titleFor(step), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.height(6.dp))
-                    Text(promptFor(step, sample.name), style = MaterialTheme.typography.bodyMedium)
+                ExplorationPhase.CAZAR -> {
+                    Text("Atrapa a los seres vivos", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "${state.caughtIds.size} de ${state.discoveries.size} atrapados",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    HuntProgress(caught = state.caughtIds.size, total = state.discoveries.size)
+                    Spacer(Modifier.height(16.dp))
+
+                    MicroHuntGame(
+                        discoveries = state.discoveries,
+                        caughtIds = state.caughtIds,
+                        onCatch = { viewModel.catchCreature(it) }
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+                    AnimatedVisibility(visible = state.lastCaught != null) {
+                        state.lastCaught?.let { caught ->
+                            AppCard {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    DiscoveryIllustration(category = caught.category, iconKey = caught.iconKey, sizeDp = 56)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text("¡Atrapaste ${caught.name}!", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                        Text(caught.curiosity, style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ExplorationPhase.RESULTADO -> {
+                    DiscoverResultView(
+                        discoveries = state.discoveries,
+                        newlyUnlockedCount = state.newlyUnlockedCollectibles.size,
+                        onContinue = onFinished
+                    )
                 }
             }
-
-            Spacer(Modifier.weight(1f))
-            PrimaryButton(text = actionLabelFor(step), onClick = { viewModel.advance() }, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -81,57 +127,39 @@ fun SampleExplorationScreen(sampleId: String, viewModel: SampleExplorationViewMo
 @Composable
 private fun DiscoverResultView(discoveries: List<MicroscopeDiscovery>, newlyUnlockedCount: Int, onContinue: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
         BiaGuide(expression = BiaExpression.CELEBRANDO, sizeDp = 120)
         Spacer(Modifier.height(12.dp))
-        Text("¡Descubrimiento completo!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("¡Muestra resuelta!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
-        Text("Coleccionaste ${discoveries.size} hallazgo(s) nuevo(s) para tu museo.", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            "Atrapaste ${discoveries.size} ser(es) vivo(s) y ya están en tu museo.",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
         Spacer(Modifier.height(16.dp))
         LazyRow {
             items(discoveries) { discovery ->
-                AppCard(modifier = Modifier.width(120.dp).padding(end = 8.dp)) {
+                AppCard(modifier = Modifier.width(130.dp).padding(end = 8.dp)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         DiscoveryIllustration(category = discovery.category, iconKey = discovery.iconKey, sizeDp = 64)
                         Spacer(Modifier.height(6.dp))
-                        Text(discovery.name, style = MaterialTheme.typography.labelMedium)
+                        Text(discovery.name, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
                     }
                 }
             }
         }
         if (newlyUnlockedCount > 0) {
             Spacer(Modifier.height(12.dp))
-            Text("¡Desbloqueaste $newlyUnlockedCount coleccionable(s) nuevo(s)!", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Text(
+                "¡Desbloqueaste $newlyUnlockedCount coleccionable(s) nuevo(s)!",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
         }
-        Spacer(Modifier.height(24.dp))
-        PrimaryButton(text = "Volver al ambiente", onClick = onContinue)
+        Spacer(Modifier.weight(1f))
+        PrimaryButton(text = "Volver al ambiente", onClick = onContinue, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(8.dp))
     }
-}
-
-private fun titleFor(step: SampleExplorationState): String = when (step) {
-    SampleExplorationState.NUEVO -> "Explorar"
-    SampleExplorationState.OBSERVANDO -> "Observar"
-    SampleExplorationState.ANALIZANDO -> "Experimentar"
-    SampleExplorationState.DESCUBIERTO -> "Descubrir"
-}
-
-private fun promptFor(step: SampleExplorationState, sampleName: String): String = when (step) {
-    SampleExplorationState.NUEVO -> "Recogiste \"$sampleName\". Antes de nada, obsérvala con calma: ¿qué formas o colores distingues a simple vista?"
-    SampleExplorationState.OBSERVANDO -> "Acerca el microscopio. Algo se mueve entre las partículas de la muestra... hay más de lo que parece."
-    SampleExplorationState.ANALIZANDO -> "Usa tus herramientas de laboratorio para comparar lo que ves con lo que ya conoces. Estás a punto de descubrir algo nuevo."
-    SampleExplorationState.DESCUBIERTO -> "¡Descubrimiento listo!"
-}
-
-private fun actionLabelFor(step: SampleExplorationState): String = when (step) {
-    SampleExplorationState.NUEVO -> "Observar de cerca"
-    SampleExplorationState.OBSERVANDO -> "Experimentar"
-    SampleExplorationState.ANALIZANDO -> "¡Descubrir!"
-    SampleExplorationState.DESCUBIERTO -> "Continuar"
-}
-
-private fun expressionFor(step: SampleExplorationState): BiaExpression = when (step) {
-    SampleExplorationState.NUEVO -> BiaExpression.OBSERVANDO
-    SampleExplorationState.OBSERVANDO -> BiaExpression.SORPRENDIDA
-    SampleExplorationState.ANALIZANDO -> BiaExpression.INVESTIGANDO
-    SampleExplorationState.DESCUBIERTO -> BiaExpression.CELEBRANDO
 }

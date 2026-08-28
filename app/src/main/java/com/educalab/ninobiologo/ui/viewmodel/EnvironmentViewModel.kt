@@ -53,10 +53,11 @@ class EnvironmentViewModel(private val repository: BiologyRepository) : ViewMode
                 val discoveredIds = discoveredIdsList.toSet()
                 val explorationBySample = explorationList.associateBy { it.sampleId }
                 val orderedSamples = samples.sortedBy { it.order }
-                val cards = orderedSamples.mapIndexed { index, sample ->
+                // Sin bloqueo en cadena: el niño elige qué muestra investigar. La app es un
+                // laboratorio para explorar libremente, no una lista de niveles secuenciales.
+                val cards = orderedSamples.map { sample ->
                     val state = explorationBySample[sample.id]?.state ?: SampleExplorationState.NUEVO
-                    val previousDiscovered = index == 0 || explorationBySample[orderedSamples[index - 1].id]?.state == SampleExplorationState.DESCUBIERTO
-                    SampleCardUiState(sample = sample, state = state, locked = !previousDiscovered)
+                    SampleCardUiState(sample = sample, state = state, locked = false)
                 }
 
                 EnvironmentUiState(

@@ -1,6 +1,5 @@
 package com.educalab.ninobiologo.ui.screens.environment
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,10 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,13 +28,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.educalab.ninobiologo.domain.model.SampleExplorationState
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.DiscoveryIllustration
+import com.educalab.ninobiologo.ui.components.DiscoverySilhouette
+import com.educalab.ninobiologo.ui.components.SampleIllustration
 import com.educalab.ninobiologo.ui.components.SectionHeader
 import com.educalab.ninobiologo.ui.viewmodel.EnvironmentViewModel
 import com.educalab.ninobiologo.ui.viewmodel.SampleCardUiState
@@ -78,7 +77,11 @@ fun EnvironmentDetailScreen(
                 )
             }
             items(state.sampleCards) { card ->
-                SampleRow(card = card, onClick = { if (!card.locked) onSampleClick(card.sample.id) })
+                SampleRow(
+                    card = card,
+                    tint = envColor(environment.primaryColorHex),
+                    onClick = { onSampleClick(card.sample.id) }
+                )
                 Spacer(Modifier.height(10.dp))
             }
 
@@ -98,13 +101,7 @@ fun EnvironmentDetailScreen(
                                 DiscoveryIllustration(category = discovery.category, iconKey = discovery.iconKey, sizeDp = 56)
                                 Text(discovery.name, style = MaterialTheme.typography.labelMedium)
                             } else {
-                                Column(
-                                    modifier = Modifier.size(56.dp).clip(CircleShape),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(Icons.Filled.Lock, contentDescription = "Sin descubrir", tint = Color.Gray)
-                                }
+                                DiscoverySilhouette(category = discovery.category, iconKey = discovery.iconKey, sizeDp = 56)
                                 Text("???", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
                             }
                         }
@@ -154,24 +151,28 @@ fun EnvironmentDetailScreen(
 }
 
 @Composable
-private fun SampleRow(card: SampleCardUiState, onClick: () -> Unit) {
-    AppCard(onClick = if (card.locked) null else onClick) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+private fun SampleRow(card: SampleCardUiState, tint: Color, onClick: () -> Unit) {
+    AppCard(onClick = onClick) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SampleIllustration(iconKey = card.sample.iconKey, tint = tint, sizeDp = 64)
+            Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(card.sample.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Text(card.sample.origin, style = MaterialTheme.typography.bodyMedium)
-                Text(stateLabel(card.state, card.locked), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.height(4.dp))
+                Text(stateLabel(card.state), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
             }
-            if (card.locked) {
-                Icon(Icons.Filled.Lock, contentDescription = "Bloqueada", tint = Color.Gray)
+            if (card.state == SampleExplorationState.DESCUBIERTO) {
+                Icon(Icons.Filled.CheckCircle, contentDescription = "Muestra resuelta", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }
 }
 
-private fun stateLabel(state: SampleExplorationState, locked: Boolean): String = when {
-    locked -> "Bloqueada"
-    state == SampleExplorationState.DESCUBIERTO -> "¡Descubierta!"
-    state == SampleExplorationState.NUEVO -> "Lista para explorar"
-    else -> "En progreso"
+private fun stateLabel(state: SampleExplorationState): String = when (state) {
+    SampleExplorationState.DESCUBIERTO -> "¡Resuelta!"
+    SampleExplorationState.NUEVO -> "Sin analizar · ¡tócala!"
+    else -> "A medio investigar"
 }
+
+private fun envColor(hex: String): Color = Color(android.graphics.Color.parseColor(hex))
