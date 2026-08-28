@@ -9,7 +9,7 @@ import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
  */
 object ClassifierEngine {
 
-    enum class ClassifierAxis { CATEGORIA, HABITAT, DIETA }
+    enum class ClassifierAxis { CATEGORIA, HABITAT, DIETA, RAREZA }
 
     data class Attempt(val discoveryId: String, val chosenValue: String)
 
@@ -32,6 +32,7 @@ object ClassifierEngine {
         ClassifierAxis.CATEGORIA -> discovery.category.name
         ClassifierAxis.HABITAT -> discovery.habitat
         ClassifierAxis.DIETA -> discovery.diet
+        ClassifierAxis.RAREZA -> discovery.rarity.name
     }
 
     fun evaluate(discoveries: List<MicroscopeDiscovery>, attempts: List<Attempt>, axis: ClassifierAxis): SessionResult {
@@ -58,6 +59,7 @@ object ClassifierEngine {
         ClassifierAxis.CATEGORIA -> "es un/a ${categoryLabel(discovery.category)}."
         ClassifierAxis.HABITAT -> "vive en ${discovery.habitat}."
         ClassifierAxis.DIETA -> "se alimenta de ${discovery.diet}."
+        ClassifierAxis.RAREZA -> "es de rareza ${discovery.rarity.displayName.lowercase()}."
     }
 
     private fun categoryLabel(category: DiscoveryCategory): String = when (category) {

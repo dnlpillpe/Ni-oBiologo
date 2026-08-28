@@ -34,8 +34,11 @@ enum class DiscoveryRarity(val displayName: String, val xpValue: Int) {
 /** Estado de exploración de una muestra: Explorar -> Observar -> Experimentar -> Descubrir. */
 enum class SampleExplorationState { NUEVO, OBSERVANDO, ANALIZANDO, DESCUBIERTO }
 
-/** Tipo de tarea del Analizador (mecánica de comparar/clasificar, herramienta de apoyo). */
-enum class AnalysisTaskType { CLASIFICADOR, MEMORIA_BIOLOGICA }
+/**
+ * Tipo de tarea del Analizador. Cada valor define QUÉ se pregunta, para que la consigna del
+ * desafío y la pregunta mostrada coincidan (antes todo preguntaba siempre la categoría).
+ */
+enum class AnalysisTaskType { CATEGORIA, HABITAT, DIETA, RAREZA, MIXTO }
 
 /** Resultado de un Experimento Biológico según qué tan lejos quedó la variable del rango ideal. */
 enum class ExperimentOutcome { SIN_CAMBIOS, EFECTO_LEVE, EFECTO_NOTABLE, EFECTO_DRASTICO }

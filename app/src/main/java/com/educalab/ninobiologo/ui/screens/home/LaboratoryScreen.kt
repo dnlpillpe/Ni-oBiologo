@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import com.educalab.ninobiologo.ui.components.AmbientParticles
 import com.educalab.ninobiologo.ui.components.BiaExpression
 import com.educalab.ninobiologo.ui.components.BiaGuide
+import com.educalab.ninobiologo.ui.components.ExplorerAvatar
 import com.educalab.ninobiologo.ui.components.XpBar
 import com.educalab.ninobiologo.ui.viewmodel.EnvironmentCardUiState
 import com.educalab.ninobiologo.ui.viewmodel.LaboratoryViewModel
@@ -98,7 +99,9 @@ fun LaboratoryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        ExplorerAvatar(avatarKey = state.avatarKey, sizeDp = 52)
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
                             Text("Tu laboratorio, ${state.alias}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                             Text(state.rank, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                         }

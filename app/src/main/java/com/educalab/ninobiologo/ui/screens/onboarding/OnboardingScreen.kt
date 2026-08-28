@@ -9,14 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -35,6 +31,7 @@ import com.educalab.ninobiologo.domain.logic.Validators
 import com.educalab.ninobiologo.ui.components.BiaExpression
 import com.educalab.ninobiologo.ui.components.BiaGuide
 import com.educalab.ninobiologo.ui.components.PrimaryButton
+import com.educalab.ninobiologo.ui.components.SelectableExplorerAvatar
 import com.educalab.ninobiologo.ui.components.SectionHeader
 import com.educalab.ninobiologo.ui.viewmodel.OnboardingViewModel
 
@@ -112,9 +109,9 @@ private fun ProfileStep(alias: String, onAliasChange: (String) -> Unit, selected
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(20.dp))
-        Text("Elige tu avatar", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("Elige tu explorador", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
-        LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(180.dp)) {
+        LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(210.dp)) {
             items(AVAILABLE_AVATARS) { avatarKey ->
                 AvatarOption(avatarKey = avatarKey, selected = avatarKey == selectedAvatar, onClick = { onAvatarSelected(avatarKey) })
             }
@@ -124,22 +121,13 @@ private fun ProfileStep(alias: String, onAliasChange: (String) -> Unit, selected
 
 @Composable
 private fun AvatarOption(avatarKey: String, selected: Boolean, onClick: () -> Unit) {
-    val index = avatarKey.last().digitToIntOrNull() ?: 1
-    val colors = listOf(
-        MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.primaryContainer
-    )
-    Card(
-        modifier = Modifier.padding(6.dp).size(64.dp).clip(CircleShape),
+    SelectableExplorerAvatar(
+        avatarKey = avatarKey,
+        selected = selected,
         onClick = onClick,
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = if (selected) colors[index % colors.size] else colors[index % colors.size].copy(alpha = 0.35f)
-        )
-    ) {
-        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text("B$index", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        }
-    }
+        modifier = Modifier.padding(6.dp),
+        sizeDp = 64
+    )
 }
 
 @Composable

@@ -55,6 +55,21 @@ class ClassifierEngineTest {
     }
 
     @Test
+    fun `clasificacion por rareza usa la rareza real del descubrimiento`() {
+        val attempts = listOf(ClassifierEngine.Attempt("disc_ballena", "LEGENDARIO"))
+        val session = ClassifierEngine.evaluate(discoveries, attempts, ClassifierEngine.ClassifierAxis.RAREZA)
+        assertTrue(session.results[0].correct)
+    }
+
+    @Test
+    fun `rareza incorrecta explica cual era la correcta`() {
+        val attempts = listOf(ClassifierEngine.Attempt("disc_helecho", "LEGENDARIO"))
+        val session = ClassifierEngine.evaluate(discoveries, attempts, ClassifierEngine.ClassifierAxis.RAREZA)
+        assertFalse(session.results[0].correct)
+        assertEquals("COMUN", session.results[0].expectedValue)
+    }
+
+    @Test
     fun `clasificacion por dieta es sensible al descubrimiento`() {
         val attempts = listOf(ClassifierEngine.Attempt("disc_ballena", "Kril"))
         val session = ClassifierEngine.evaluate(discoveries, attempts, ClassifierEngine.ClassifierAxis.DIETA)

@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import com.educalab.ninobiologo.domain.model.DiscoveryCategory
 import com.educalab.ninobiologo.domain.model.MicroscopeDiscovery
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -88,7 +87,8 @@ fun MicroHuntGame(
             currentList.forEachIndexed { index, discovery ->
                 val caught = discovery.id in caughtIds
                 val p = if (caught) restPosition(index, currentList.size, w, h) else swimPosition(index, currentList.size, t, w, h)
-                drawCreature(p, w * 0.085f, discovery.category, caught)
+                val sway = if (caught) 0f else 16f * sin((t * 6.2831853f + index).toDouble()).toFloat()
+                drawCreature(p, w * 0.075f, discovery, caught, sway)
             }
         }
         AmbientParticles(modifier = Modifier.fillMaxSize(), color = Color(0xFF2E7D32), count = 10)
@@ -115,38 +115,22 @@ private fun restPosition(index: Int, total: Int, w: Float, h: Float): Offset {
     return Offset(w * 0.19f + step * (index + 0.5f), h * 0.83f)
 }
 
-private fun DrawScope.drawCreature(center: Offset, radius: Float, category: DiscoveryCategory, caught: Boolean) {
-    val base = when (category) {
-        DiscoveryCategory.PLANTA -> Color(0xFF3E8E41)
-        DiscoveryCategory.ANIMAL -> Color(0xFFC57B3E)
-        DiscoveryCategory.MICROORGANISMO -> Color(0xFF2E8B8B)
-        DiscoveryCategory.HONGO -> Color(0xFFB5473A)
-    }
+private fun DrawScope.drawCreature(
+    center: Offset,
+    radius: Float,
+    discovery: MicroscopeDiscovery,
+    caught: Boolean,
+    swayDegrees: Float
+) {
     if (caught) {
-        drawCircle(Color(0xFF2E7D32).copy(alpha = 0.28f), radius = radius * 1.7f, center = center)
+        drawCircle(Color(0xFF2E7D32).copy(alpha = 0.22f), radius = radius * 2.1f, center = center)
     } else {
-        // Estela que insinúa movimiento
-        drawCircle(base.copy(alpha = 0.18f), radius = radius * 1.45f, center = center)
+        // Estela que insinúa el movimiento
+        drawCircle(Color.White.copy(alpha = 0.5f), radius = radius * 1.9f, center = center)
     }
-    drawCircle(base, radius = radius, center = center)
-
-    // Cilios / flagelo alrededor: señal visual de "está vivo"
-    repeat(7) { i ->
-        val a = Math.toRadians((i * 51.4).toDouble())
-        drawLine(
-            base.copy(alpha = 0.85f),
-            start = Offset(center.x + (radius * cos(a)).toFloat(), center.y + (radius * sin(a)).toFloat()),
-            end = Offset(center.x + (radius * 1.45f * cos(a)).toFloat(), center.y + (radius * 1.45f * sin(a)).toFloat()),
-            strokeWidth = radius * 0.16f
-        )
-    }
-    // Núcleo y ojitos (personalidad para el público infantil)
-    drawCircle(Color.White.copy(alpha = 0.9f), radius = radius * 0.42f, center = center)
-    drawCircle(Color(0xFF15201A), radius = radius * 0.13f, center = Offset(center.x - radius * 0.15f, center.y - radius * 0.05f))
-    drawCircle(Color(0xFF15201A), radius = radius * 0.13f, center = Offset(center.x + radius * 0.15f, center.y - radius * 0.05f))
-
+    drawSpeciesRotated(discovery.iconKey, discovery.category, center, radius, swayDegrees)
     if (caught) {
-        drawCircle(Color(0xFF2E7D32), radius = radius * 1.35f, center = center, style = Stroke(width = radius * 0.22f))
+        drawCircle(Color(0xFF2E7D32), radius = radius * 2.1f, center = center, style = Stroke(width = radius * 0.2f))
     }
 }
 

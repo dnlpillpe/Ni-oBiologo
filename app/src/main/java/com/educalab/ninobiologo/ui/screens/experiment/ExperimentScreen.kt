@@ -1,6 +1,8 @@
 package com.educalab.ninobiologo.ui.screens.experiment
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.educalab.ninobiologo.domain.model.ExperimentOutcome
+import com.educalab.ninobiologo.ui.components.ExperimentVisual
 import com.educalab.ninobiologo.ui.components.PrimaryButton
 import com.educalab.ninobiologo.ui.components.SectionHeader
 import com.educalab.ninobiologo.ui.components.StepperControl
@@ -33,11 +36,18 @@ fun ExperimentScreen(experimentId: String, viewModel: ExperimentViewModel, onSav
     val preview = state.preview
 
     Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+        Column(Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
             SectionHeader(experiment?.question ?: "Experimento biológico", experiment?.description)
 
             if (experiment != null) {
                 Spacer(Modifier.height(8.dp))
+                // La simulación reacciona en vivo: el niño VE el efecto, no solo lo lee.
+                ExperimentVisual(
+                    experiment = experiment,
+                    value = state.variableValue,
+                    health = healthFor(preview?.outcome)
+                )
+                Spacer(Modifier.height(12.dp))
                 StepperControl(
                     label = experiment.variableName,
                     value = state.variableValue,
@@ -60,7 +70,7 @@ fun ExperimentScreen(experimentId: String, viewModel: ExperimentViewModel, onSav
                 Text(preview.message, style = MaterialTheme.typography.bodyMedium)
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(24.dp))
             if (state.saved) {
                 Text("¡Resultado guardado en tu diario científico!", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
                 if (state.newlyUnlockedCollectibles.isNotEmpty()) {
@@ -73,6 +83,15 @@ fun ExperimentScreen(experimentId: String, viewModel: ExperimentViewModel, onSav
             }
         }
     }
+}
+
+/** Traduce el resultado del motor a "salud" de la escena (1 = todo va bien). */
+private fun healthFor(outcome: ExperimentOutcome?): Float = when (outcome) {
+    ExperimentOutcome.SIN_CAMBIOS -> 1f
+    ExperimentOutcome.EFECTO_LEVE -> 0.7f
+    ExperimentOutcome.EFECTO_NOTABLE -> 0.4f
+    ExperimentOutcome.EFECTO_DRASTICO -> 0.1f
+    null -> 1f
 }
 
 private fun outcomeLabel(outcome: ExperimentOutcome): String = when (outcome) {

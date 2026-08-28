@@ -28,9 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.educalab.ninobiologo.ui.components.AppCard
 import com.educalab.ninobiologo.ui.components.BadgeChip
-import com.educalab.ninobiologo.ui.components.BiaExpression
-import com.educalab.ninobiologo.ui.components.BiaGuide
 import com.educalab.ninobiologo.ui.components.ConfirmationDialog
+import com.educalab.ninobiologo.ui.components.ExplorerAvatar
 import com.educalab.ninobiologo.ui.components.SectionHeader
 import com.educalab.ninobiologo.ui.components.SimpleTopBar
 import com.educalab.ninobiologo.ui.components.XpBar
@@ -45,7 +44,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit) {
         LazyColumn(modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    BiaGuide(expression = BiaExpression.FELIZ, sizeDp = 72)
+                    ExplorerAvatar(avatarKey = state.avatarKey, sizeDp = 76)
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(state.alias, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)

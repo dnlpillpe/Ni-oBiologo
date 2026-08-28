@@ -75,7 +75,7 @@ import kotlinx.coroutines.launch
         ExperimentResultEntity::class,
         DiscoveryJournalEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

@@ -360,27 +360,26 @@ print(f"Piezas del Constructor Biológico: {len(CREATURE_PART_OPTIONS)}")
 # ---------------------------------------------------------------------------
 # 6. ANALIZADOR — tareas de comparar/clasificar (30 total, 6 por ambiente)
 # ---------------------------------------------------------------------------
-ANALYSIS_TYPE_CYCLE = ["CLASIFICADOR", "MEMORIA_BIOLOGICA"]
-ANALYSIS_TITLE_TEMPLATES = [
-    "Clasifica las muestras de {env}",
-    "Memoria de descubrimientos: {env}",
-    "Compara hábitats: {env}",
-    "¿Qué comen? {env}",
-    "Ordena por rareza: {env}",
-    "Repaso final: {env}",
+# Cada tarea del Analizador declara qué pregunta de verdad, para que la consigna del desafío
+# y la pregunta que ve el niño coincidan.
+ANALYSIS_TASKS = [
+    ("CATEGORIA", "Clasifica los seres vivos de {env}", "Agrupa cada hallazgo en su reino: planta, animal, microorganismo u hongo."),
+    ("HABITAT", "¿Dónde vive cada uno? {env}", "Relaciona cada ser vivo con el lugar donde habita."),
+    ("DIETA", "¿De qué se alimentan? {env}", "Averigua qué come cada uno de los seres vivos que descubriste."),
+    ("RAREZA", "Rarezas de {env}", "Decide qué tan difícil es encontrar cada hallazgo."),
+    ("MIXTO", "Repaso mixto de {env}", "Preguntas variadas sobre todo lo que descubriste en la zona."),
+    ("MIXTO", "Desafío final de {env}", "El reto completo: grupo, hábitat, alimentación y rareza."),
 ]
 CHALLENGES = []
 for env_id in ENV_BY_ID:
     env_name = ENV_BY_ID[env_id]["name"]
     env_discoveries = DISC_BY_ENV.get(env_id, [])
     disc_ids = [d["id"] for d in env_discoveries][:6] or [d["id"] for d in env_discoveries]
-    for i, template in enumerate(ANALYSIS_TITLE_TEMPLATES):
-        atype = ANALYSIS_TYPE_CYCLE[i % len(ANALYSIS_TYPE_CYCLE)]
+    for i, (atype, template, instructions) in enumerate(ANALYSIS_TASKS):
         title = template.format(env=env_name)
         CHALLENGES.append(dict(
             id=f"cha_{env_id}_{i+1:02d}", environment=env_id, type=atype, title=title,
-            instructions=f"Usa el Analizador para completar '{title}' con lo que descubriste en esta zona.",
-            disc_ids=disc_ids, reward_xp=15 + (i * 3)
+            instructions=instructions, disc_ids=disc_ids, reward_xp=15 + (i * 3)
         ))
 assert len(CHALLENGES) == 30, f"Se esperaban 30 tareas de análisis, hay {len(CHALLENGES)}"
 print(f"Tareas del Analizador: {len(CHALLENGES)}")
